@@ -1,0 +1,4 @@
+BatteryTwin/backend/.env
+BatteryTwin/backend/venv/
+**/__pycache__/
+*.pyc
