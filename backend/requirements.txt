@@ -31,8 +31,10 @@ langchain-core==0.3.25
 # --- Config / Env ---
 python-dotenv==1.0.1
 pydantic==2.10.3
-pydantic-core==2.27.2
 pydantic-settings==2.7.0
+
+# --- Force pre-built wheels only ---
+wheel>=0.42.0
 
 # --- Authentication ---
 bcrypt==4.2.1
