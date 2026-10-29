@@ -2,6 +2,12 @@
 #  BatteryTwin – Git Ignore
 # ─────────────────────────────────────────────
 
+# ── Large zip files – too big for GitHub ─────────────────────────
+*.zip
+backend.zip
+dashboard.zip
+BatteryTwin/.zip
+
 # ── Secrets / credentials – NEVER commit these ────────────────────
 backend/.env
 dashboard/.env
