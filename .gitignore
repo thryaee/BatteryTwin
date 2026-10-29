@@ -1,6 +1,68 @@
+# ─────────────────────────────────────────────
+#  BatteryTwin – Git Ignore
+# ─────────────────────────────────────────────
+
+# ── Secrets / credentials – NEVER commit these ────────────────────
 backend/.env
 dashboard/.env
+dashboard/dashboard/.env
+dashboard/dashboard/.env.local
+dashboard/dashboard/.env.development.local
+dashboard/dashboard/.env.test.local
+dashboard/dashboard/.env.production.local
+*.env
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ── Python ────────────────────────────────────────────────────────
 backend/venv/
-dashboard/node_modules/
 **/__pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+*.egg
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.cover
+*.log
+
+# ── Test database (SQLite created by pytest) ──────────────────────
+backend/test_batterytwin.db
+backend/*.db
+
+# ── ML model files (large binaries – regenerated on startup) ──────
+# Uncomment below if you do NOT want to commit trained models:
+# backend/ml/saved_models/*.pkl
+
+# ── Node / Frontend ───────────────────────────────────────────────
+dashboard/node_modules/
+dashboard/dashboard/node_modules/
+dashboard/dashboard/build/
+dashboard/build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+
+# ── OS / Editor ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── Render / deployment artifacts ────────────────────────────────
+.render/

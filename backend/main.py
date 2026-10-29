@@ -19,11 +19,18 @@ Run:
 import asyncio
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from config import settings
 from utils.logger import get_logger
+
+# ── Rate limiter (applied selectively to auth endpoints) ───────────
+limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
 logger = get_logger(__name__)
 
@@ -156,6 +163,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ── Rate limiter state ─────────────────────────────────────────────
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # ── CORS (allow React dashboard on localhost:3000) ─────────────────
 app.add_middleware(
     CORSMiddleware,
@@ -170,7 +181,9 @@ from api.battery_routes import router as battery_router
 from api.twin_routes import router as twin_router
 from api.agent_routes import router as agent_router
 from api.websocket_routes import router as ws_router
+from api.auth_routes import router as auth_router
 
+app.include_router(auth_router)
 app.include_router(battery_router)
 app.include_router(twin_router)
 app.include_router(agent_router)

@@ -10,7 +10,10 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
-from database.models import BatteryReading, DigitalTwinState, AgentResult, RelayEvent
+from database.models import (
+    BatteryReading, DigitalTwinState, AgentResult, RelayEvent,
+    User, UserRole,
+)
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -170,3 +173,81 @@ def get_relay_history(
         .limit(limit)
         .all()
     )
+
+
+# ── User ───────────────────────────────────────────────────────────
+
+def get_user_by_email(db: Session, email: str) -> Optional[User]:
+    """Return the User row matching email (case-insensitive) or None."""
+    return (
+        db.query(User)
+        .filter(User.email == email.lower().strip())
+        .first()
+    )
+
+
+def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
+    return db.query(User).filter(User.id == user_id).first()
+
+
+def create_user(
+    db: Session,
+    full_name: str,
+    email: str,
+    hashed_password: str,
+    role: UserRole = UserRole.user,
+    is_active: bool = True,
+    is_verified: bool = False,
+) -> User:
+    """
+    Persist a new user.  Role is assigned by the caller; the public
+    registration endpoint MUST always pass role=UserRole.user.
+    """
+    user = User(
+        full_name=full_name.strip(),
+        email=email.lower().strip(),
+        hashed_password=hashed_password,
+        role=role,
+        is_active=is_active,
+        is_verified=is_verified,
+    )
+    db.add(user)
+    db.flush()   # populate user.id without committing
+    return user
+
+
+def update_last_login(db: Session, user: User) -> None:
+    user.last_login_at = datetime.utcnow()
+    db.flush()
+
+
+def deactivate_user(db: Session, user: User) -> None:
+    user.is_active = False
+    db.flush()
+
+
+def set_reset_token(
+    db: Session,
+    user: User,
+    token_hash: str,
+    expires_at: datetime,
+) -> None:
+    user.reset_token_hash = token_hash
+    user.reset_token_expires_at = expires_at
+    db.flush()
+
+
+def clear_reset_token(db: Session, user: User) -> None:
+    user.reset_token_hash = None
+    user.reset_token_expires_at = None
+    db.flush()
+
+
+def update_password(db: Session, user: User, new_hashed_password: str) -> None:
+    user.hashed_password = new_hashed_password
+    user.updated_at = datetime.utcnow()
+    db.flush()
+
+
+def email_exists(db: Session, email: str) -> bool:
+    return get_user_by_email(db, email) is not None

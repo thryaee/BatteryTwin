@@ -1,0 +1,455 @@
+/**
+ * src/styles/theme.css
+ * --------------------
+ * Nexus Studio Dark Luxury Editorial Design System for BatteryTwin.
+ *
+ * Visual Language:
+ * - 60% Nexus Editorial Product Design
+ * - 25% Deep-Tech Automotive Battery Engineering
+ * - 15% 3D Digital Twin Spatial Effects
+ *
+ * Core Tokens:
+ * - Primary Background: Near-Black (ink-950 #04040a)
+ * - Typography: Clash Display (monumental), Cabinet Grotesk (body), JetBrains Mono (telemetry)
+ * - Primary Accent: Electric Lime (signal #e8ff47)
+ * - Secondary Accent: Warm Orange / Critical (ember #ff6b35)
+ * - Neutrals: Off-white to muted violet-gray (mist #f0f0f8 -> #9898b8)
+ * - Semantic Battery Status: Healthy (#10b981), Warning (#f59e0b), Critical (#ef4444)
+ */
+
+:root {
+  /* ── Nexus Studio Ink Color Palette ────────────────────────────── */
+  --ink-950: #04040a; /* Pitch base background */
+  --ink-900: #080812; /* Elevated deep surface */
+  --ink-800: #0d0d1f; /* Card & panel surface */
+  --ink-700: #12122e; /* Subtle elevated container */
+  --ink-600: #1a1a3e; /* Border highlight / hover */
+
+  /* ── Primary Accent: Electric Lime (Signal) ─────────────────────── */
+  --signal: #e8ff47;
+  --signal-dim: #b8cc38;
+  --signal-glow: rgba(232, 255, 71, 0.16);
+  --signal-border: rgba(232, 255, 71, 0.35);
+
+  /* ── Secondary Accent: Warm Ember (Warning / Urgent Action) ──────── */
+  --ember: #ff6b35;
+  --ember-dim: #cc5529;
+  --ember-glow: rgba(255, 107, 53, 0.16);
+  --ember-border: rgba(255, 107, 53, 0.4);
+
+  /* ── Mist Typography & Neutral Scale ────────────────────────────── */
+  --mist-100: #f0f0f8; /* Hero white / prominent value */
+  --mist-300: #e4e4f2;
+  --mist-500: #dcdcec; /* Subheaders & primary labels */
+  --mist-700: #c4c4d8; /* Descriptive body copy */
+  --mist-900: #9898b8; /* Muted telemetry captions / units */
+  --mist-dim: rgba(255, 255, 255, 0.08); /* Minimal hairline borders */
+
+  /* ── Battery Health Semantic Colors (Engineering Truth) ─────────── */
+  --status-healthy: #10b981;  /* Optimal cell chemistry */
+  --status-warning: #f59e0b;  /* Elevated delta-V / heat warning */
+  --status-critical: #ef4444; /* High degradation / emergency contactor cut */
+
+  /* ── Font Stacks ────────────────────────────────────────────────── */
+  --font-display: 'Clash Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ── Legacy Variable Compatibility (Safeguarding Existing Components) ─ */
+  --bg-primary: var(--ink-950);
+  --bg-secondary: var(--ink-900);
+  --bg-card: var(--ink-800);
+  --bg-card-hover: var(--ink-700);
+  --bg-card-glass: rgba(13, 13, 31, 0.65);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-glow: rgba(232, 255, 71, 0.25);
+  --border-neon-cyan: var(--signal-border);
+  --border-neon-emerald: rgba(16, 185, 129, 0.4);
+
+  --neon-cyan: var(--signal); /* Strategic replacement of cyan with signal lime */
+  --neon-blue: #9898b8;
+  --neon-emerald: var(--status-healthy);
+  --neon-amber: var(--status-warning);
+  --neon-purple: #c4c4d8;
+  --neon-crimson: var(--status-critical);
+
+  --text-primary: var(--mist-100);
+  --text-secondary: var(--mist-700);
+  --text-muted: var(--mist-900);
+  --text-dim: #646485;
+
+  --font-sans: var(--font-body);
+  --font-tech: var(--font-body);
+}
+
+/* ── Base Global Styles ───────────────────────────────────────────── */
+body {
+  background-color: var(--ink-950);
+  color: var(--mist-100);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Text Selection (Nexus Signal Lime) ────────────────────────────── */
+::selection {
+  background: var(--signal);
+  color: var(--ink-950);
+}
+
+/* ── Minimalist Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink-900);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--signal);
+  border-radius: 9999px;
+}
+
+/* ── Custom Cursor Support ────────────────────────────────────────── */
+@media (pointer: fine) {
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
+}
+
+/* ── Procedural SVG Grain / Noise Overlay ─────────────────────────── */
+.grain {
+  position: relative;
+}
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Subtle 60px Engineering Grid ────────────────────────────────── */
+.engineering-grid,
+.cyber-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── Outlined Typography (Text Stroke) ────────────────────────────── */
+.text-stroke {
+  -webkit-text-stroke: 1px currentColor;
+  color: transparent;
+}
+.text-stroke-signal {
+  -webkit-text-stroke: 1px var(--signal);
+  color: transparent;
+}
+.text-stroke-mist {
+  -webkit-text-stroke: 1px rgba(240, 240, 248, 0.35);
+  color: transparent;
+}
+
+/* ── Typography Utility Classes ───────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.035em;
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono-num {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' on, 'lnum' on;
+  letter-spacing: -0.01em;
+}
+
+.tech-title {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--mist-100);
+}
+
+/* ── Dark Luxury Editorial Surface (Glass Panel) ──────────────────── */
+.glass-panel {
+  background: rgba(13, 13, 31, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+}
+
+.glass-panel-glow {
+  border-color: var(--signal-border);
+  box-shadow: 0 0 24px var(--signal-glow);
+}
+
+/* ── Scanlines Disengaged (No CRT / Cyberpunk effect) ─────────────── */
+.scanlines::after {
+  display: none !important;
+}
+
+/* ── Minimalist Buttons & Interaction Styles ──────────────────────── */
+.cyber-button {
+  background: rgba(13, 13, 31, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--mist-100);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  user-select: none;
+}
+
+.cyber-button:hover {
+  background: var(--ink-700);
+  border-color: var(--signal);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.cyber-button-active {
+  background: rgba(232, 255, 71, 0.1);
+  border-color: var(--signal);
+  color: var(--signal);
+  box-shadow: 0 0 16px var(--signal-glow);
+}
+
+.cyber-button-danger {
+  background: rgba(40, 12, 12, 0.7);
+  border-color: rgba(255, 107, 53, 0.4);
+  color: #ff9d7a;
+}
+.cyber-button-danger:hover {
+  background: rgba(60, 16, 16, 0.9);
+  border-color: var(--ember);
+  color: #ffffff;
+  box-shadow: 0 0 16px var(--ember-glow);
+}
+
+.cyber-button-success {
+  background: rgba(6, 40, 24, 0.7);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+.cyber-button-success:hover {
+  background: rgba(8, 60, 36, 0.9);
+  border-color: var(--status-healthy);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+}
+
+/* ── Minimalist Tooltip & Floating HUD ────────────────────────────── */
+.hud-tooltip {
+  position: relative;
+}
+.hud-tooltip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  background: rgba(8, 8, 18, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--mist-100);
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.hud-floating-card {
+  background: rgba(8, 8, 18, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.hud-floating-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Minimalist Thermal Gradient Bar ──────────────────────────────── */
+.thermal-legend-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #10b981 0%, #a3e635 35%, #f59e0b 70%, #ef4444 100%);
+}
+
+/* ── Editorial Glass Pill Badges ──────────────────────────────────── */
+.glass-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(13, 13, 31, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--mist-100);
+}
+
+/* ── Pulsing Status Dots (Restrained) ─────────────────────────────── */
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+.pulse-dot-signal,
+.pulse-dot-cyan {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 6px var(--signal);
+  animation: subtle-pulse 3s infinite ease-in-out;
+}
+
+.pulse-dot-emerald {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-healthy);
+  box-shadow: 0 0 6px var(--status-healthy);
+  animation: subtle-pulse 3s infinite ease-in-out;
+}
+
+.pulse-dot-ember {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ember);
+  box-shadow: 0 0 6px var(--ember);
+  animation: subtle-pulse 2s infinite ease-in-out;
+}
+
+/* ── Diagonal Clipping & Animation Utilities ──────────────────────── */
+.clip-diagonal {
+  clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
+}
+
+@keyframes cinematic-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cinematic-entry {
+  animation: cinematic-fade-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* ── Responsive Navigation Breakpoints ────────────────────────────── */
+@media (max-width: 1024px) {
+  .desktop-top-nav,
+  .status-capsule-desktop,
+  .battery-selector-desktop {
+    display: none !important;
+  }
+  .mobile-hamburger-btn {
+    display: flex !important;
+  }
+}
+
+/* ── Living Cinematic Environment & Editorial Markers (Phase C & D) ─ */
+@keyframes slow-ambient-drift {
+  0% {
+    transform: translate(0%, 0%) scale(1);
+  }
+  33% {
+    transform: translate(4%, -3%) scale(1.05);
+  }
+  66% {
+    transform: translate(-3%, 4%) scale(0.96);
+  }
+  100% {
+    transform: translate(0%, 0%) scale(1);
+  }
+}
+
+.ambient-glow-underlay {
+  position: fixed;
+  top: -15%;
+  left: -15%;
+  width: 130vw;
+  height: 130vh;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle 900px at 20% 25%, rgba(232, 255, 71, 0.022), transparent 65%),
+              radial-gradient(circle 800px at 80% 70%, rgba(56, 189, 248, 0.018), transparent 65%);
+  animation: slow-ambient-drift 36s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-glow-underlay {
+    animation: none;
+  }
+}
+
+.corner-marker-tl {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid rgba(232, 255, 71, 0.45);
+  border-left: 1px solid rgba(232, 255, 71, 0.45);
+  pointer-events: none;
+}
+
+.corner-marker-br {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-bottom: 1px solid rgba(232, 255, 71, 0.45);
+  border-right: 1px solid rgba(232, 255, 71, 0.45);
+  pointer-events: none;
+}
+
+

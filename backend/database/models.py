@@ -5,7 +5,8 @@ SQLAlchemy ORM models for the BatteryTwin system.
 
 Tables
 ------
-battery_readings   – raw time-series data from ESP32 / simulator
+users               – authenticated user accounts (users and admins)
+battery_readings    – raw time-series data from ESP32 / simulator
 digital_twin_states – snapshots of the digital twin after each update
 agent_results       – coordinator agent outputs (AI recommendations)
 relay_events        – relay ON/OFF log for audit trail
@@ -14,9 +15,55 @@ relay_events        – relay ON/OFF log for audit trail
 from datetime import datetime
 from sqlalchemy import (
     Column, Integer, Float, String, Boolean,
-    DateTime, Text, JSON, ForeignKey, Index,
+    DateTime, Text, JSON, ForeignKey, Index, Enum as SAEnum,
 )
+import enum
 from database.connection import Base
+
+
+# ── Role Enum ──────────────────────────────────────────────────────
+
+class UserRole(str, enum.Enum):
+    user = "user"
+    admin = "admin"
+
+
+# ── User ───────────────────────────────────────────────────────────
+
+class User(Base):
+    """
+    User account for BatteryTwin authentication.
+
+    Roles:
+      user  – read access to battery data and dashboards
+      admin – full access including device management and relay control
+    """
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String(128), nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(256), nullable=False)
+    role = Column(SAEnum(UserRole), default=UserRole.user, nullable=False)
+
+    # Account state
+    is_active = Column(Boolean, default=True, nullable=False)
+    is_verified = Column(Boolean, default=False, nullable=False)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(
+        DateTime, default=datetime.utcnow,
+        onupdate=datetime.utcnow, nullable=False,
+    )
+    last_login_at = Column(DateTime, nullable=True)
+
+    # Password reset token (hashed) – None means no active reset request
+    reset_token_hash = Column(String(256), nullable=True)
+    reset_token_expires_at = Column(DateTime, nullable=True)
+
+    def __repr__(self):
+        return f"<User id={self.id} email={self.email!r} role={self.role}>"
 
 
 class BatteryReading(Base):

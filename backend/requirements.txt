@@ -1,12 +1,13 @@
 # ─────────────────────────────────────────────
 #  BatteryTwin Backend – Python Dependencies
-#  Python 3.13 compatible (pre-built wheels)
+#  Tested on Python 3.11 (Render default)
 #  Install: pip install -r requirements.txt
 # ─────────────────────────────────────────────
 
 # --- Web Framework ---
 fastapi==0.115.6
 uvicorn[standard]==0.32.1
+gunicorn==23.0.0
 python-multipart==0.0.12
 
 # --- MQTT ---
@@ -17,7 +18,7 @@ sqlalchemy==2.0.36
 psycopg2-binary==2.9.10
 alembic==1.14.0
 
-# --- Data / ML (versions with pre-built Windows wheels for Python 3.13) ---
+# --- Data / ML ---
 numpy==2.2.0
 pandas==2.2.3
 scikit-learn==1.6.0
@@ -31,6 +32,13 @@ langchain-core==0.3.25
 python-dotenv==1.0.1
 pydantic==2.10.3
 pydantic-settings==2.7.0
+
+# --- Authentication ---
+bcrypt==4.2.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+slowapi==0.1.9
+email-validator==2.2.0
 
 # --- Utilities ---
 httpx==0.28.1
