@@ -92,20 +92,25 @@ export function AuthProvider({ children }) {
   }, [_storeToken, _clearSession]);
 
   // ── Restore session on page load ───────────────────────────────
-  // Always clear session on load — user must log in every time
+  // Attempt silent token refresh using the httpOnly refresh cookie.
+  // If the cookie is valid the session is restored transparently.
+  // If not (expired / missing), the user is sent to login.
 
   useEffect(() => {
-    const clearOnLoad = async () => {
+    const restoreSession = async () => {
       try {
-        await logoutUser();
+        const tokenData = await refreshAccessToken();
+        _storeToken(tokenData);
+        const profile = await fetchCurrentUser();
+        setUser(profile);
       } catch {
-        // ignore errors
-      } finally {
+        // No valid refresh token — start unauthenticated
         _clearSession();
+      } finally {
         setLoading(false);
       }
     };
-    clearOnLoad();
+    restoreSession();
   }, []); // eslint-disable-line
 
   // ── Public auth actions ────────────────────────────────────────
