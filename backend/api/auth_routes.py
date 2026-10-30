@@ -86,7 +86,15 @@ _INVALID_CREDENTIALS = HTTPException(
 
 
 def _set_refresh_cookie(response: Response, token: str, remember: bool) -> None:
-    """Write the refresh token into a secure, httpOnly cookie."""
+    """Write the refresh token into a secure, httpOnly cookie.
+
+    In production the frontend and backend are on different subdomains of
+    onrender.com, so we need samesite="none" + secure=True to allow the
+    browser to send the cookie on cross-origin requests (withCredentials).
+    In development (HTTP localhost) we fall back to samesite="lax" because
+    samesite="none" requires HTTPS.
+    """
+    is_prod = settings.app_env == "production"
     max_age = (
         settings.refresh_token_expire_days * 86_400
         if remember
@@ -96,15 +104,21 @@ def _set_refresh_cookie(response: Response, token: str, remember: bool) -> None:
         key=_REFRESH_COOKIE,
         value=token,
         httponly=True,
-        secure=(settings.app_env == "production"),
-        samesite="lax",
+        secure=is_prod,                          # must be True for samesite=none
+        samesite="none" if is_prod else "lax",   # cross-origin in prod
         max_age=max_age,
         path="/api/auth",
     )
 
 
 def _clear_refresh_cookie(response: Response) -> None:
-    response.delete_cookie(key=_REFRESH_COOKIE, path="/api/auth")
+    is_prod = settings.app_env == "production"
+    response.delete_cookie(
+        key=_REFRESH_COOKIE,
+        path="/api/auth",
+        secure=is_prod,
+        samesite="none" if is_prod else "lax",
+    )
 
 
 def _authenticate(db: Session, email: str, password: str) -> User:
