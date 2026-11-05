@@ -2,23 +2,23 @@
  * battery_sensor.ino
  * -------------------
  * BatteryTwin ESP32 Full Firmware
- * INA219 + DHT11 + OLED + Relay + WiFi + MQTT
+ * Voltage Sensor + ACS712 + DHT11 + OLED + Relay + WiFi + MQTT
  *
  * Wiring:
- *   INA219  → VCC=3.3V, GND, SDA=GPIO21, SCL=GPIO22
- *   DHT11   → VCC=3.3V, GND, DATA=GPIO4
- *   OLED    → VCC=3.3V, GND, SDA=GPIO21, SCL=GPIO22
- *   Relay   → VCC=5V,   GND, IN=GPIO26
+ *   Voltage Sensor → S=GPIO34, +=3.3V, -=GND, VCC screw=Switch OUT, GND screw=GND
+ *   ACS712         → VCC=5V, GND, OUT=10kΩ divider→GPIO35, T1=Switch OUT, T2=Relay COM
+ *   DHT11          → VCC=3.3V, GND, DATA=GPIO4
+ *   OLED           → VCC=3.3V, GND, SDA=GPIO21, SCL=GPIO22
+ *   Relay          → VCC=5V, GND, IN=GPIO26
  *
  * Libraries needed:
- *   Adafruit INA219, DHT sensor library, Adafruit Unified Sensor,
+ *   DHT sensor library, Adafruit Unified Sensor,
  *   Adafruit SSD1306, Adafruit GFX Library, PubSubClient, ArduinoJson
  */
 
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <Adafruit_INA219.h>
 #include <DHT.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
@@ -28,9 +28,9 @@
 // CONFIGURATION — edit only these values
 // ═══════════════════════════════════════════════════════════════════
 
-const char* WIFI_SSID         = "Bhaskar-2.4_EXT";
-const char* WIFI_PASSWORD     = ".26041970";
-const char* MQTT_BROKER       = "192.168.1.101";
+const char* WIFI_SSID         = "Lemmino";
+const char* WIFI_PASSWORD     = "ifounddbcooper";
+const char* MQTT_BROKER       = "10.173.244.171";
 const int   MQTT_PORT         = 1883;
 const char* MQTT_USERNAME     = "";
 const char* MQTT_PASSWORD_STR = "";
@@ -45,10 +45,12 @@ const char* CLIENT_ID         = "esp32-battery-01";
 // PIN DEFINITIONS
 // ═══════════════════════════════════════════════════════════════════
 
-#define DHT_PIN       4
-#define DHT_TYPE      DHT11
-#define RELAY_PIN     26
-#define LED_PIN       2
+#define DHT_PIN        4
+#define DHT_TYPE       DHT11
+#define RELAY_PIN      26
+#define LED_PIN        2
+#define VOLTAGE_PIN    34   // Voltage sensor S pin
+#define CURRENT_PIN    35   // ACS712 OUT pin (via 10kΩ divider)
 
 // ═══════════════════════════════════════════════════════════════════
 // OLED
@@ -58,6 +60,21 @@ const char* CLIENT_ID         = "esp32-battery-01";
 #define SCREEN_HEIGHT  64
 #define OLED_RESET     -1
 #define OLED_ADDRESS  0x3C
+
+// ═══════════════════════════════════════════════════════════════════
+// SENSOR CALIBRATION
+// ═══════════════════════════════════════════════════════════════════
+
+// Voltage sensor module (0-25V): ratio = 5.0
+#define VOLTAGE_RATIO     5.0
+#define ADC_REF           3.3
+#define ADC_RES           4095.0
+
+// ACS712 5A: sensitivity=185mV/A, zero=2.5V
+// Note: OUT pin goes through 10kΩ/10kΩ divider → multiply ADC by 2
+#define ACS_SENSITIVITY   0.185
+#define ACS_ZERO_V        2.5
+#define ACS_DIVIDER       2.0    // because of 10kΩ/10kΩ voltage divider
 
 // ═══════════════════════════════════════════════════════════════════
 // BATTERY PARAMETERS (7.4V 2S 3000mAh)
@@ -81,7 +98,6 @@ const unsigned long RECONNECT_DELAY_MS    = 5000;
 
 DHT              dht(DHT_PIN, DHT_TYPE);
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-Adafruit_INA219  ina219;
 WiFiClient       wifiClient;
 PubSubClient     mqttClient(wifiClient);
 
@@ -90,7 +106,6 @@ PubSubClient     mqttClient(wifiClient);
 // ═══════════════════════════════════════════════════════════════════
 
 bool          oledOk      = false;
-bool          inaOk       = false;
 bool          dhtOk       = false;
 bool          relayOn     = true;
 float         socEstimate = 50.0;
@@ -131,14 +146,9 @@ void setup() {
     delay(1000);
   }
 
-  // INA219
-  inaOk = ina219.begin();
-  if (!inaOk) {
-    Serial.println("[FAIL] INA219 not found!");
-  } else {
-    ina219.setCalibration_32V_2A();
-    Serial.println("[OK]   INA219 found.");
-  }
+  // Voltage + Current sensors (analog — always available)
+  Serial.println("[OK]   Voltage sensor on GPIO34.");
+  Serial.println("[OK]   ACS712 current sensor on GPIO35.");
 
   // DHT11
   dht.begin();
@@ -194,29 +204,29 @@ void readAndPublish() {
   float dt = (now - lastSocMs) / 1000.0;
   lastSocMs = now;
 
-  // ── INA219 with multi-sample averaging (your working method) ────
-  float voltage = 0, current_mA = 0, power_mW = 0;
-  if (inaOk) {
-    float busVoltage   = ina219.getBusVoltage_V();
-    float shuntVoltage = ina219.getShuntVoltage_mV();
-    voltage = busVoltage + (shuntVoltage / 1000.0);
+  // ── Voltage Sensor ─────────────────────────────────────────────
+  int rawV = analogRead(VOLTAGE_PIN);
+  float adcV = (rawV / ADC_RES) * ADC_REF;
+  float voltage = adcV * VOLTAGE_RATIO;
 
-    // 5-sample average for current
-    float currentSum = 0;
-    for (int i = 0; i < 5; i++) {
-      currentSum += ina219.getCurrent_mA();
-      delay(10);
-    }
-    current_mA = abs(currentSum / 5.0);
-
-    // Noise gate
-    if (!relayOn || current_mA < 5.0) {
-      current_mA = 0.0;
-      power_mW   = 0.0;
-    } else {
-      power_mW = voltage * current_mA;
-    }
+  // ── ACS712 Current (100 sample average) ────────────────────────
+  long sum = 0;
+  for (int i = 0; i < 100; i++) {
+    sum += analogRead(CURRENT_PIN);
+    delay(1);
   }
+  float adcA_raw = ((sum / 100.0) / ADC_RES) * ADC_REF;
+  // Compensate for 10kΩ/10kΩ voltage divider (multiply by 2)
+  float adcA = adcA_raw * ACS_DIVIDER;
+  float current_A  = abs((adcA - ACS_ZERO_V) / ACS_SENSITIVITY);
+  float current_mA = current_A * 1000.0;
+
+  // Noise gate
+  if (!relayOn || current_mA < 10.0) {
+    current_mA = 0.0;
+    current_A  = 0.0;
+  }
+  float power_mW = voltage * current_mA;
 
   // ── DHT11 ──────────────────────────────────────────────────────
   float temp = dht.readTemperature();
@@ -225,8 +235,7 @@ void readAndPublish() {
   if (!dhtOk) { temp = 25.0; hum = 0.0; }
 
   // ── SOC estimate ───────────────────────────────────────────────
-  float current_A = current_mA / 1000.0;
-  float soc       = estimateSOC(voltage, current_A, dt);
+  float soc = estimateSOC(voltage, current_A, dt);
 
   // ── Serial output ──────────────────────────────────────────────
   Serial.println("-----------------------------");
@@ -249,19 +258,16 @@ void readAndPublish() {
     display.println("-- BatteryTwin --");
 
     display.setCursor(0, 12);
-    if (inaOk) display.printf("Volt : %.3f V",  voltage);
-    else        display.println("Volt : N/A");
+    display.printf("Volt : %.2f V", voltage);
 
     display.setCursor(0, 22);
-    if (inaOk) display.printf("Curr : %.2f mA", current_mA);
-    else        display.println("Curr : N/A");
+    display.printf("Curr : %.1f mA", current_mA);
 
     display.setCursor(0, 32);
-    if (inaOk) display.printf("Pwr  : %.2f mW", power_mW);
-    else        display.println("Pwr  : N/A");
+    display.printf("Pwr  : %.1f mW", power_mW);
 
     display.setCursor(0, 42);
-    if (dhtOk) display.printf("Temp : %.1f C",  temp);
+    if (dhtOk) display.printf("Temp : %.1f C", temp);
     else        display.println("Temp : ERROR");
 
     display.setCursor(0, 54);
@@ -358,7 +364,7 @@ void setRelay(bool on) {
 
 void connectWiFi() {
   Serial.printf("[WiFi] Connecting to %s\n", WIFI_SSID);
-  
+
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
   delay(1000);
@@ -368,7 +374,7 @@ void connectWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   int n = 0;
-  while (WiFi.status() != WL_CONNECTED && n < 80) {  // 40 second timeout
+  while (WiFi.status() != WL_CONNECTED && n < 80) {
     delay(500); Serial.print("."); n++;
   }
   Serial.println();
