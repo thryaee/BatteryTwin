@@ -101,19 +101,18 @@ export function ProtectedRoute() {
     : <Navigate to="/login" state={{ from: location }} replace />;
 }
 
-// ── UserRoute: role === "user" only ────────────────────────────────
+// ── UserRoute: any authenticated operator (normal users + admins) ──
 
 /**
- * Wraps routes that are only for normal users.
- * Admins are redirected to their own dashboard.
+ * Wraps routes for authenticated operators.
+ * Admins are also granted access as supervisors.
  */
 export function UserRoute() {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
   if (loading) return <AuthLoadingScreen />;
   if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
-  if (isAdmin) return <Navigate to="/admin/dashboard" replace />;
 
   return <Outlet />;
 }

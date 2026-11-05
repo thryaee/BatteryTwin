@@ -2,12 +2,11 @@
  * src/components/BatteryCellMatrix.jsx
  * ------------------------------------
  * 12-Cell Bank Matrix with real-time balancing, variance calculation, and 3D sync.
- * Redesigned in Nexus Studio Dark Luxury Editorial aesthetics.
+ * Clean, modern light theme styling.
  */
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Thermometer, CheckCircle, AlertTriangle, ArrowUpDown, Layers } from 'lucide-react';
 import { soundEffects } from '../utils/soundEffects';
 
 export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell }) {
@@ -49,15 +48,15 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
 
   return (
     <div
-      className="glass-panel"
       style={{
+        background: '#FFFFFF',
+        borderRadius: 16,
         padding: '24px 28px',
+        border: '1px solid #E2E8F0',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.02)',
         display: 'flex',
         flexDirection: 'column',
         gap: 20,
-        background: 'linear-gradient(180deg, rgba(13, 13, 31, 0.65) 0%, rgba(8, 8, 18, 0.75) 100%)',
-        border: '1px solid rgba(255, 255, 255, 0.07)',
-        borderRadius: 12,
       }}
     >
       {/* Header & Delta Summary */}
@@ -65,28 +64,27 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
         <div>
           <div
             style={{
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: '0.66rem',
-              color: '#9898b8',
-              letterSpacing: '0.1em',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              color: '#64748B',
+              letterSpacing: '0.06em',
               textTransform: 'uppercase',
               marginBottom: 4,
             }}
           >
-            4S3P PACK TOPOLOGY // 12 SERIES-PARALLEL CELLS
+            4S3P Pack Architecture &bull; 12 Series-Parallel Cells
           </div>
           <h2
             style={{
-              fontFamily: 'Clash Display, sans-serif',
-              fontSize: '1.15rem',
-              color: '#f0f0f8',
-              letterSpacing: '-0.01em',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '1.2rem',
+              color: '#0F172A',
+              fontWeight: 700,
               margin: 0,
-              textTransform: 'uppercase',
-              fontWeight: 600,
             }}
           >
-            PACK VOLTAGE & THERMAL BALANCE MATRIX
+            Cell Voltage &amp; Thermal Balancing Matrix
           </h2>
         </div>
 
@@ -94,22 +92,22 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <div
             style={{
-              background: 'rgba(8, 8, 18, 0.85)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               padding: '6px 14px',
-              borderRadius: 6,
+              borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
               gap: 8,
             }}
           >
-            <span style={{ fontSize: '0.66rem', color: '#9898b8', fontFamily: 'JetBrains Mono' }}>CELL ΔV:</span>
+            <span style={{ fontSize: '0.7rem', color: '#64748B', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>CELL &Delta;V:</span>
             <span
               style={{
                 fontSize: '0.85rem',
-                fontWeight: 600,
-                color: deltaV < 30 ? '#10b981' : '#f59e0b',
-                fontFamily: 'JetBrains Mono',
+                fontWeight: 700,
+                color: deltaV < 30 ? '#16A34A' : '#F59E0B',
+                fontFamily: 'JetBrains Mono, monospace',
               }}
             >
               {deltaV.toFixed(1)} mV
@@ -118,25 +116,25 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
 
           <div
             style={{
-              background: 'rgba(8, 8, 18, 0.85)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               padding: '6px 14px',
-              borderRadius: 6,
+              borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
               gap: 8,
             }}
           >
-            <span style={{ fontSize: '0.66rem', color: '#9898b8', fontFamily: 'JetBrains Mono' }}>SPREAD ΔT:</span>
+            <span style={{ fontSize: '0.7rem', color: '#64748B', fontFamily: 'JetBrains Mono, monospace', fontWeight: 600 }}>SPREAD &Delta;T:</span>
             <span
               style={{
                 fontSize: '0.85rem',
-                fontWeight: 600,
-                color: deltaT < 4 ? '#10b981' : '#f97316',
-                fontFamily: 'JetBrains Mono',
+                fontWeight: 700,
+                color: deltaT < 4 ? '#16A34A' : '#EA580C',
+                fontFamily: 'JetBrains Mono, monospace',
               }}
             >
-              ±{deltaT} °C
+              &plusmn;{deltaT} &deg;C
             </span>
           </div>
         </div>
@@ -146,7 +144,7 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))',
           gap: 12,
         }}
       >
@@ -154,7 +152,7 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
           const isSelected = selectedCell === cell.id;
           const isWarm = cell.temp > 38;
           const isHot = cell.temp > 45;
-          const tempBadgeColor = isHot ? '#ef4444' : isWarm ? '#f59e0b' : '#10b981';
+          const tempBadgeColor = isHot ? '#DC2626' : isWarm ? '#D97706' : '#16A34A';
 
           return (
             <motion.div
@@ -163,19 +161,17 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
               whileTap={{ scale: 0.98 }}
               onClick={() => handleCellClick(cell.id)}
               style={{
-                background: isSelected
-                  ? 'linear-gradient(180deg, rgba(24, 24, 46, 0.95) 0%, rgba(13, 13, 31, 0.98) 100%)'
-                  : 'rgba(8, 8, 18, 0.75)',
-                border: isSelected ? '1px solid #e8ff47' : '1px solid rgba(255, 255, 255, 0.07)',
-                borderRadius: 8,
-                padding: '12px 12px',
+                background: isSelected ? '#EFF6FF' : '#F8FAFC',
+                border: isSelected ? '2px solid #2563EB' : '1px solid #E2E8F0',
+                borderRadius: 10,
+                padding: '12px 14px',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 8,
                 position: 'relative',
-                boxShadow: isSelected ? '0 0 20px rgba(232, 255, 71, 0.15)' : 'none',
-                transition: 'border-color 0.2s ease, background 0.2s ease',
+                boxShadow: isSelected ? '0 4px 12px rgba(37, 99, 235, 0.15)' : 'none',
+                transition: 'all 0.18s ease',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -183,8 +179,8 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
                   style={{
                     fontFamily: 'JetBrains Mono, monospace',
                     fontWeight: 700,
-                    fontSize: '0.78rem',
-                    color: isSelected ? '#e8ff47' : '#f0f0f8',
+                    fontSize: '0.8rem',
+                    color: isSelected ? '#2563EB' : '#0F172A',
                   }}
                 >
                   C#{cell.id.toString().padStart(2, '0')}
@@ -192,14 +188,14 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
                 {cell.isBalancing && (
                   <span
                     style={{
-                      fontSize: '0.58rem',
-                      color: '#f59e0b',
-                      background: 'rgba(245, 158, 11, 0.1)',
-                      border: '1px solid rgba(245, 158, 11, 0.25)',
-                      padding: '1px 5px',
+                      fontSize: '0.62rem',
+                      color: '#B45309',
+                      background: '#FEF3C7',
+                      border: '1px solid #FDE68A',
+                      padding: '1px 6px',
                       borderRadius: 4,
                       fontWeight: 700,
-                      fontFamily: 'JetBrains Mono',
+                      fontFamily: 'JetBrains Mono, monospace',
                     }}
                   >
                     BAL
@@ -208,28 +204,28 @@ export default function BatteryCellMatrix({ liveData, selectedCell, onSelectCell
               </div>
 
               {/* Voltage Readout */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem' }}>
-                <span style={{ color: '#9898b8', fontSize: '0.68rem', fontFamily: 'JetBrains Mono' }}>V</span>
-                <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 600, color: '#f0f0f8' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                <span style={{ color: '#64748B', fontSize: '0.7rem', fontFamily: 'JetBrains Mono, monospace' }}>V</span>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: '#0F172A' }}>
                   {cell.voltage.toFixed(3)}
                 </span>
               </div>
 
               {/* Temperature Readout */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem' }}>
-                <span style={{ color: '#9898b8', fontSize: '0.68rem', fontFamily: 'JetBrains Mono' }}>T</span>
-                <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 600, color: tempBadgeColor }}>
-                  {cell.temp.toFixed(1)}°
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                <span style={{ color: '#64748B', fontSize: '0.7rem', fontFamily: 'JetBrains Mono, monospace' }}>T</span>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: tempBadgeColor }}>
+                  {cell.temp.toFixed(1)}&deg;
                 </span>
               </div>
 
               {/* Micro-bar Gauge */}
-              <div style={{ width: '100%', height: 3, background: 'rgba(255, 255, 255, 0.06)', borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
+              <div style={{ width: '100%', height: 4, background: '#E2E8F0', borderRadius: 2, overflow: 'hidden', marginTop: 2 }}>
                 <div
                   style={{
                     width: `${Math.min(100, Math.max(0, ((cell.voltage - 3.2) / 1.0) * 100))}%`,
                     height: '100%',
-                    background: '#e8ff47',
+                    background: isSelected ? '#2563EB' : '#16A34A',
                     borderRadius: 2,
                   }}
                 />

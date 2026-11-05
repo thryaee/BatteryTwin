@@ -1,8 +1,8 @@
 /**
  * src/components/charts/DegradationTrendChart.jsx
  * -----------------------------------------------
- * Nexus Studio Editorial SOH Degradation Curve Extrapolation Chart.
- * Minimalist dark aesthetics with emerald actual SOH, electric lime projection, and ember EOL threshold.
+ * Commercial SOH Degradation Curve Extrapolation Chart for BatteryTwin.
+ * Visualizes actual SOH retention, neural network projection, and 80.0% EOL retirement threshold.
  */
 
 import React from 'react';
@@ -47,118 +47,89 @@ export default function DegradationTrendChart({
 
   return (
     <div
-      className="glass-panel"
       style={{
-        padding: '22px 24px',
+        padding: '24px 26px',
         display: 'flex',
         flexDirection: 'column',
         gap: 16,
-        background: 'rgba(13, 13, 31, 0.65)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
-        borderRadius: 12,
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: 16,
+        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.05)',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h3
-            style={{
-              fontFamily: 'Clash Display',
-              fontSize: '1.05rem',
-              fontWeight: 600,
-              color: '#f0f0f8',
-              letterSpacing: '-0.02em',
-              margin: 0,
-            }}
-          >
-            SOH DEGRADATION CURVE & EOL PROJECTION
+          <h3 style={{ fontSize: '1.02rem', fontWeight: 700, color: '#0F172A', margin: '0 0 4px 0', fontFamily: 'Inter, sans-serif' }}>
+            CAPACITY RETENTION &amp; DEGRADATION FORECAST
           </h3>
-          <p
-            style={{
-              fontSize: '0.72rem',
-              color: '#9898b8',
-              margin: '3px 0 0 0',
-              fontFamily: 'Cabinet Grotesk',
-            }}
-          >
-            Non-linear capacity decay extrapolation based on electro-chemical degradation rate ({degradationRate.toFixed(4)}/cyc)
-          </p>
+          <span style={{ fontSize: '0.74rem', color: '#64748B' }}>
+            Non-linear electrochemical degradation trajectory extrapolated to 80.0% End-of-Life (EOL)
+          </span>
         </div>
-
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: '0.72rem',
-            color: '#ff9d7a',
-            fontFamily: 'JetBrains Mono',
-            background: 'rgba(40, 12, 12, 0.6)',
-            padding: '4px 10px',
-            borderRadius: 9999,
-            border: '1px solid rgba(255, 107, 53, 0.3)',
-          }}
-        >
-          <span>EOL THRESHOLD: 80.0% SOH</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.74rem', color: '#64748B' }}>
+          <span>Current SOH:</span>
+          <span style={{ fontWeight: 700, color: '#16A34A', fontFamily: 'JetBrains Mono' }}>{currentSoh.toFixed(1)}%</span>
         </div>
       </div>
 
-      <div style={{ height: 260, width: '100%', marginTop: 6 }}>
+      <div style={{ width: '100%', height: 260 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={points} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.04)" />
+          <LineChart data={points} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
             <XAxis
               dataKey="cycle"
-              stroke="#9898b8"
-              fontSize={10}
+              stroke="#94A3B8"
+              fontSize={11}
               tickLine={false}
-              fontFamily="JetBrains Mono"
+              axisLine={{ stroke: '#E2E8F0' }}
+              tickFormatter={(c) => `${c} cyc`}
             />
             <YAxis
-              domain={[70, 100]}
-              stroke="#9898b8"
-              fontSize={10}
+              domain={[75, 105]}
+              stroke="#94A3B8"
+              fontSize={11}
               tickLine={false}
-              fontFamily="JetBrains Mono"
-              unit="%"
+              axisLine={{ stroke: '#E2E8F0' }}
+              tickFormatter={(v) => `${v}%`}
             />
             <Tooltip
               contentStyle={{
-                background: 'rgba(8, 8, 18, 0.95)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: 8,
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: 10,
+                boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.12)',
                 fontSize: 12,
-                fontFamily: 'JetBrains Mono',
-                color: '#f0f0f8',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                color: '#0F172A',
+                fontFamily: 'Inter, sans-serif',
               }}
+              formatter={(v) => [`${v}% SOH`]}
+              labelFormatter={(c) => `Cycle #${c}`}
             />
-            <Legend
-              wrapperStyle={{
-                fontSize: '0.72rem',
-                fontFamily: 'JetBrains Mono',
-                paddingTop: 10,
-              }}
-            />
+            <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ fontSize: 12, paddingBottom: 8 }} />
+
             <ReferenceLine
               y={80}
-              stroke="#ff6b35"
+              stroke="#DC2626"
               strokeDasharray="4 4"
-              label={{ value: 'EOL Cutoff (80%)', fill: '#ff6b35', fontSize: 10, position: 'top', fontFamily: 'JetBrains Mono' }}
+              strokeWidth={1.5}
+              label={{ value: 'EOL Criterion (80.0%)', fill: '#DC2626', fontSize: 11, position: 'right' }}
             />
+
             <Line
               type="monotone"
               dataKey="Actual SOH"
-              stroke="#10b981"
-              strokeWidth={2.5}
-              dot={{ r: 3, fill: '#10b981' }}
+              stroke="#16A34A"
+              strokeWidth={3}
+              dot={{ r: 3, fill: '#16A34A' }}
               isAnimationActive={false}
             />
             <Line
               type="monotone"
               dataKey="Projected SOH"
-              stroke="#e8ff47"
+              stroke="#2563EB"
               strokeWidth={2}
-              strokeDasharray="5 5"
+              strokeDasharray="4 4"
               dot={false}
               isAnimationActive={false}
             />

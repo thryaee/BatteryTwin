@@ -1,12 +1,13 @@
 /**
- * AIRecommendations.jsx
- * ----------------------
- * Displays the Coordinator Agent's final decision and maintenance action tasks.
+ * src/components/AIRecommendations.jsx
+ * ------------------------------------
+ * Coordinator Agent Recommendations & Maintenance Action Items.
+ * Commercial white theme with high-legibility priority alerts.
  */
 
 import React from 'react';
-import { Cpu, Wrench, ShieldAlert, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
-import StatusBadge from './StatusBadge';
+import { ShieldAlert, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
+import StatusBadge from './common/StatusBadge';
 
 const PRIORITY_ICONS = {
   CRITICAL: ShieldAlert,
@@ -20,24 +21,25 @@ function ActionItem({ action }) {
   return (
     <div
       style={{
-        background: 'rgba(3, 7, 18, 0.7)',
-        border: '1px solid rgba(51, 65, 85, 0.4)',
-        borderRadius: 8,
-        padding: '10px 14px',
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: 12,
+        padding: '12px 16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 4,
+        gap: 6,
+        boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <StatusBadge label={action.priority} />
-        <span style={{ fontSize: '0.72rem', color: '#64748b', fontFamily: 'JetBrains Mono' }}>{action.category}</span>
+        <span style={{ fontSize: '0.72rem', color: '#64748B', fontFamily: 'JetBrains Mono' }}>{action.category}</span>
       </div>
-      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f1f5f9' }}>
+      <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0F172A' }}>
         {action.action}
       </div>
       {action.detail && (
-        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{action.detail}</div>
+        <div style={{ fontSize: '0.78rem', color: '#64748B', lineHeight: 1.4 }}>{action.detail}</div>
       )}
     </div>
   );
@@ -49,92 +51,79 @@ export default function AIRecommendations({ liveData }) {
   const priority = liveData?.recommendation_priority || coordinator?.priority || 'INFO';
   const maintSummary = coordinator?.maintenance_summary || {};
   const topActions = maintSummary.top_actions || [];
-  const nextService = maintSummary.next_service_cycles;
-  const modelNotes = coordinator?.model_notes || [];
 
   const Icon = PRIORITY_ICONS[priority] || Info;
 
   return (
-    <section>
-      <h2 className="tech-title" style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 12, letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Cpu size={15} color="#a855f7" />
-        AI AGENT COORDINATOR REASONING & ACTIONS
-      </h2>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {/* Coordinator recommendation card */}
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Icon size={18} color="#a855f7" />
-              <span style={{ fontWeight: 800, fontSize: '0.92rem', color: '#f1f5f9', fontFamily: 'Orbitron' }}>
-                COORDINATOR DECISION
-              </span>
-            </div>
-            <StatusBadge label={priority} size="lg" />
-          </div>
-
-          <pre
-            style={{
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              fontSize: '0.82rem',
-              color: '#cbd5e1',
-              lineHeight: 1.6,
-              fontFamily: 'JetBrains Mono',
-              margin: 0,
-              background: 'rgba(3, 7, 18, 0.6)',
-              padding: '12px 14px',
-              borderRadius: 8,
-              border: '1px solid rgba(51, 65, 85, 0.4)',
-            }}
-          >
-            {recommendation || 'Awaiting agent loop evaluation...'}
-          </pre>
-        </div>
-
-        {/* Maintenance actions list */}
-        {topActions.length > 0 && (
-          <div className="glass-panel" style={{ padding: 18 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Rajdhani' }}>
-                <Wrench size={15} color="#f59e0b" />
-                PRESCRIBED MAINTENANCE ACTIONS
-              </span>
-              {nextService !== undefined && (
-                <span style={{ fontSize: '0.72rem', color: '#64748b', fontFamily: 'JetBrains Mono' }}>
-                  Next check in {nextService} cycles
-                </span>
-              )}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {topActions.map((action, i) => (
-                <ActionItem key={action.code || i} action={action} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Model notice */}
-        {modelNotes.some(Boolean) && (
+    <div
+      style={{
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: 16,
+        padding: '24px 26px',
+        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.05)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+      }}
+    >
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div
             style={{
-              background: 'rgba(66, 32, 6, 0.4)',
-              border: '1px solid #d97706',
-              borderRadius: 8,
-              padding: '10px 14px',
-              fontSize: '0.72rem',
-              color: '#fbbf24',
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              backgroundColor: '#EFF6FF',
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
+              justifyContent: 'center',
             }}
           >
-            <AlertTriangle size={14} color="#f59e0b" />
-            <span><strong>Model Notice:</strong> {modelNotes.find(Boolean)}</span>
+            <Icon size={18} color="#2563EB" />
           </div>
-        )}
+          <div>
+            <h3 style={{ fontSize: '1.02rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+              AI Coordinator Arbitration Decision
+            </h3>
+            <span style={{ fontSize: '0.74rem', color: '#64748B' }}>
+              Multi-agent consensus resolving battery health, safety contactor, and charging rate
+            </span>
+          </div>
+        </div>
+        <StatusBadge label={priority} size="md" />
       </div>
-    </section>
+
+      {/* Decision Box */}
+      <div
+        style={{
+          backgroundColor: '#F8FAFC',
+          border: '1px solid #E2E8F0',
+          borderRadius: 12,
+          padding: '16px 18px',
+          fontSize: '0.88rem',
+          color: '#1E293B',
+          lineHeight: 1.6,
+          fontFamily: 'Inter, sans-serif',
+        }}
+      >
+        {recommendation || 'Autonomous arbitration active: battery operating within safe electrochemical envelope. No emergency contactor cut required.'}
+      </div>
+
+      {/* Prescribed Action Items */}
+      {topActions.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+          <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>
+            Recommended Preventive Actions:
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
+            {topActions.map((act, i) => (
+              <ActionItem key={i} action={act} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

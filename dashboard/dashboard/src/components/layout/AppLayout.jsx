@@ -2,14 +2,13 @@
  * src/components/layout/AppLayout.jsx
  * -----------------------------------
  * Master layout frame with Minimal Sticky Top Navigation and Full-Width Content Outlet.
- * The bulky permanent sidebar has been removed, providing 100% of viewport width to the content.
+ * Premium Commercial White Theme.
  */
 
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import TopNav from './TopNav';
 import MobileNavDrawer from './MobileNavDrawer';
-import CustomCursor from '../ui/CustomCursor';
 import ScrollProgressBar from '../ui/ScrollProgressBar';
 import { useBatteryData } from '../../hooks/useBatteryData';
 
@@ -22,22 +21,22 @@ export default function AppLayout() {
 
   return (
     <div
-      className="grain engineering-grid"
+      className="engineering-grid"
       style={{
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
-        background: 'var(--ink-950, #04040a)',
-        color: 'var(--mist-100, #f0f0f8)',
+        backgroundColor: '#FFFFFF',
+        color: '#0F172A',
         position: 'relative',
         width: '100%',
+        fontFamily: 'Inter, sans-serif',
       }}
     >
       <div className="ambient-glow-underlay" />
-      <CustomCursor />
       <ScrollProgressBar />
 
-      {/* Minimal, Premium Sticky Top Navigation */}
+      {/* Modern Clean Sticky Top Navigation */}
       <TopNav
         liveData={liveData}
         connected={connected}
@@ -50,7 +49,7 @@ export default function AppLayout() {
         setMobileOpen={setMobileOpen}
       />
 
-      {/* Full-Screen Mobile Editorial Navigation Drawer */}
+      {/* Mobile Responsive Navigation Drawer */}
       <MobileNavDrawer
         isOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
@@ -59,7 +58,7 @@ export default function AppLayout() {
         setSelectedBattery={setSelectedBattery}
       />
 
-      {/* Full-Width Workspace Main Frame */}
+      {/* Main Content Workspace Container */}
       <main
         style={{
           flex: 1,

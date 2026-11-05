@@ -1,32 +1,56 @@
 /**
  * src/components/common/MetricCard.jsx
  * ------------------------------------
- * Nexus Studio Editorial Telemetry Metric Card.
+ * High-Precision Commercial Telemetry Metric Card for BatteryTwin.
  *
  * Characteristics:
- * - Large tabular numeric typography (JetBrains Mono & Clash Display)
- * - AnimatedCounter integration for smooth transitions
- * - Minimal, uncluttered micro sparkline
- * - Clean delta trending indicator
+ * - Premium light card design (#FFFFFF) with crisp border (#E2E8F0) and soft shadow
+ * - Icon with soft-tint circular badge
+ * - Large readable typography with smooth AnimatedCounter
+ * - Explanatory tooltip for technical metrics (SOC, SOH, RUL, Temp, Voltage, etc.)
+ * - Dynamic trend indicator & clean sparkline
+ * - Short plain-language description
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, HelpCircle } from 'lucide-react';
 import AnimatedCounter from '../ui/AnimatedCounter';
+
+const METRIC_TOOLTIPS = {
+  'State of Charge': 'SOC represents the available electrochemical energy remaining in the battery pack, analogous to a fuel gauge.',
+  'SOC': 'SOC represents the available electrochemical energy remaining in the battery pack, analogous to a fuel gauge.',
+  'State of Health': 'SOH measures the battery’s current maximum capacity compared to its original rated capacity. 100% indicates brand new condition; 80% is the standard End-of-Life (EOL) threshold.',
+  'SOH': 'SOH measures the battery’s current maximum capacity compared to its original rated capacity.',
+  'Terminal Voltage': 'Combined electrical potential across all series cell groups in the 4S3P pack. Nominal operating voltage is ~14.80V.',
+  'Pack Voltage': 'Combined electrical potential across all series cell groups in the 4S3P pack. Nominal operating voltage is ~14.80V.',
+  'Pack Current': 'Net electrical current entering (charging, positive) or leaving (discharging, negative) the battery pack.',
+  'Current': 'Net electrical current flow measured across the INA219 precision shunt resistor.',
+  'Core Temp': 'Physical core cell temperature measured via DS18B20 digital thermal sensors. Optimal temperature range is 20°C to 35°C.',
+  'Battery Temperature': 'Physical core cell temperature measured via DS18B20 digital thermal sensors. Optimal temperature range is 20°C to 35°C.',
+  'Core Temperature': 'Physical core cell temperature measured via DS18B20 digital thermal sensors. Optimal temperature range is 20°C to 35°C.',
+  'RUL Horizon': 'RUL (Remaining Useful Life) forecasts the number of complete charge-discharge cycles before pack capacity degrades to 80%.',
+  'Remaining Useful Life': 'RUL (Remaining Useful Life) forecasts the number of complete charge-discharge cycles before pack capacity degrades to 80%.',
+  'Predicted Remaining Life': 'Estimated remaining charge cycles before the battery reaches the 80% End-of-Life retirement criterion.',
+  'Net Power': 'Instantaneous electrical power computed as P = V × I. Measured in Watts.',
+};
 
 export default function MetricCard({
   icon: Icon,
   label,
   value,
   unit = '',
-  color = '#f0f0f8',
+  color = '#2563EB',
   decimals = 2,
   nominal = '',
   history = [],
   historyKey = '',
   sub = '',
+  description = '',
+  status = '',
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const chartData = historyKey && history.length > 1
     ? history.map((h, i) => ({ i, v: h[historyKey] ?? 0 }))
     : [];
@@ -42,74 +66,140 @@ export default function MetricCard({
   const isRising = delta > 0.001;
   const isFalling = delta < -0.001;
 
-  // Tone color for line & accents (defaulting to electric lime or subtle off-white)
-  const strokeColor = color === '#00f0ff' ? '#e8ff47' : color;
+  // Commercial color mappings
+  let strokeColor = color;
+  if (color === '#e8ff47' || color === '#00f0ff') strokeColor = '#2563EB';
+  if (color === '#f0f0f8') strokeColor = '#0F172A';
+
+  const tooltipText = METRIC_TOOLTIPS[label] || description || (nominal ? `Nominal target: ${nominal}` : '');
 
   return (
     <div
-      className="glass-panel"
-      data-cursor="hover"
       style={{
-        padding: '18px 20px',
+        padding: '22px 26px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 8,
-        minWidth: 170,
+        justifyContent: 'space-between',
+        gap: 14,
+        minWidth: 210,
         flex: 1,
-        borderRadius: 12,
-        background: 'rgba(13, 13, 31, 0.65)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
+        borderRadius: 18,
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04)',
+        transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+        position: 'relative',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = '#CBD5E1';
+        e.currentTarget.style.boxShadow = '0 8px 20px -2px rgba(15, 23, 42, 0.08), 0 3px 8px -1px rgba(15, 23, 42, 0.04)';
+        e.currentTarget.style.transform = 'translateY(-2px)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = '#E2E8F0';
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04)';
+        e.currentTarget.style.transform = 'translateY(0)';
       }}
     >
-      {/* Top Header: Label & Nominal Range */}
+      {/* Top Header: Icon + Label + Tooltip */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 7,
-            fontSize: '0.72rem',
-            color: '#9898b8',
-            fontWeight: 600,
-            fontFamily: 'Cabinet Grotesk',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-          }}
-        >
-          {Icon && <Icon size={14} color={strokeColor} />}
-          <span>{label}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {Icon && (
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 11,
+                backgroundColor: `${strokeColor}14`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Icon size={20} color={strokeColor} />
+            </div>
+          )}
+          <div>
+            <div
+              style={{
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                color: '#334155',
+                fontFamily: 'Inter, sans-serif',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              {label}
+            </div>
+            {nominal && (
+              <div
+                style={{
+                  fontSize: '0.72rem',
+                  color: '#94A3B8',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                {nominal}
+              </div>
+            )}
+          </div>
         </div>
-        {nominal && (
-          <span
-            style={{
-              fontSize: '0.62rem',
-              color: 'rgba(152, 152, 184, 0.6)',
-              fontFamily: 'JetBrains Mono',
-              letterSpacing: '0.05em',
-            }}
+
+        {/* Info Tooltip Icon */}
+        {tooltipText && (
+          <div
+            style={{ position: 'relative', cursor: 'pointer' }}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+            onClick={() => setShowTooltip((p) => !p)}
+            aria-label={`About ${label}`}
           >
-            {nominal}
-          </span>
+            <HelpCircle size={17} color="#94A3B8" />
+            {showTooltip && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: 6,
+                  width: 240,
+                  padding: '10px 14px',
+                  backgroundColor: '#0F172A',
+                  color: '#FFFFFF',
+                  fontSize: '0.78rem',
+                  lineHeight: 1.45,
+                  borderRadius: 10,
+                  boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.3)',
+                  zIndex: 60,
+                  pointerEvents: 'none',
+                }}
+              >
+                {tooltipText}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
-      {/* Main Value Display */}
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 2 }}>
+      {/* Main Metric Value Display */}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 4 }}>
         <div
           style={{
-            fontSize: '1.9rem',
-            fontWeight: 700,
-            color: strokeColor,
+            fontSize: '2.35rem',
+            fontWeight: 800,
+            color: '#0F172A',
             lineHeight: 1,
-            fontFamily: 'JetBrains Mono',
-            letterSpacing: '-0.02em',
+            fontFamily: 'Inter, sans-serif',
+            letterSpacing: '-0.03em',
           }}
         >
           {isValid && !isNaN(numValue) ? (
             <AnimatedCounter
               end={numValue}
               decimals={decimals}
-              duration={1.2}
+              duration={1.0}
             />
           ) : (
             isValid ? value : '—'
@@ -117,11 +207,11 @@ export default function MetricCard({
           {unit && (
             <span
               style={{
-                fontSize: '0.85rem',
-                fontWeight: 500,
-                color: '#9898b8',
-                marginLeft: 4,
-                fontFamily: 'Cabinet Grotesk',
+                fontSize: '1.05rem',
+                fontWeight: 600,
+                color: '#64748B',
+                marginLeft: 5,
+                fontFamily: 'Inter, sans-serif',
               }}
             >
               {unit}
@@ -132,13 +222,16 @@ export default function MetricCard({
         {delta !== 0 && !isNaN(delta) && (
           <div
             style={{
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: 3,
-              fontSize: '0.68rem',
-              color: isRising ? '#10b981' : isFalling ? '#ef4444' : '#9898b8',
-              fontFamily: 'JetBrains Mono',
+              padding: '2px 6px',
+              borderRadius: 6,
+              fontSize: '0.72rem',
               fontWeight: 600,
+              fontFamily: 'JetBrains Mono, monospace',
+              backgroundColor: isRising ? '#F0FDF4' : '#FEF2F2',
+              color: isRising ? '#16A34A' : '#DC2626',
             }}
           >
             {isRising ? <TrendingUp size={12} /> : isFalling ? <TrendingDown size={12} /> : null}
@@ -147,41 +240,43 @@ export default function MetricCard({
         )}
       </div>
 
-      {sub && (
+      {/* Subtitle / Short Explanation */}
+      {(sub || description) && (
         <div
           style={{
-            fontSize: '0.68rem',
-            color: '#9898b8',
-            fontFamily: 'JetBrains Mono',
-            letterSpacing: '0.02em',
+            fontSize: '0.74rem',
+            color: '#64748B',
+            lineHeight: 1.35,
+            fontFamily: 'Inter, sans-serif',
           }}
         >
-          {sub}
+          {sub || description}
         </div>
       )}
 
-      {/* Sparkline Chart */}
+      {/* Micro Sparkline Chart */}
       {chartData.length > 2 && (
-        <div style={{ marginTop: 4, height: 32 }}>
+        <div style={{ marginTop: 2, height: 36, width: '100%' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <Line
                 type="monotone"
                 dataKey="v"
                 stroke={strokeColor}
-                strokeWidth={1.5}
+                strokeWidth={2}
                 dot={false}
                 isAnimationActive={false}
               />
               <Tooltip
                 formatter={(v) => [`${v?.toFixed(decimals)} ${unit}`, label]}
                 contentStyle={{
-                  background: '#080812',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: 8,
                   fontSize: 11,
-                  borderRadius: 6,
-                  color: '#f0f0f8',
-                  fontFamily: 'JetBrains Mono',
+                  color: '#0F172A',
+                  boxShadow: '0 4px 12px rgba(15, 23, 42, 0.08)',
+                  padding: '6px 10px',
                 }}
                 labelStyle={{ display: 'none' }}
               />

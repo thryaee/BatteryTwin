@@ -34,7 +34,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import {
   GuestRoute,
-  UserRoute,
+  ProtectedRoute,
   AdminRoute,
 } from './components/auth/ProtectedRoute';
 
@@ -80,8 +80,8 @@ export default function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Route>
 
-          {/* ── Authenticated user routes (AppLayout shell) ────── */}
-          <Route element={<UserRoute />}>
+          {/* ── Authenticated routes (AppLayout shell: users + admins) ── */}
+          <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               {/* /dashboard → main scroll-driven homepage */}
               <Route path="/dashboard" element={<MainDashboard />} />

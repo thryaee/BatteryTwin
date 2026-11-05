@@ -1,24 +1,35 @@
 /**
  * src/components/layout/TopNav.jsx
  * --------------------------------
- * Minimal, Premium, Sticky/Floating Top Navigation for BatteryTwin.
+ * Premium Light Sticky Navigation Bar for BatteryTwin.
  *
  * Characteristics:
- * - Replaces the bulky permanent left sidebar, giving 100% of viewport width to content
- * - Thin, unobtrusive 58px header with 24px backdrop blur and 1px hairline border
- * - LEFT: Brand mark, BATTERYTWIN title, AUTONOMOUS AI BMS subtitle
- * - CENTER/RIGHT: Section navigation (OVERVIEW, LIVE, TWIN, HEALTH, AI, PREDICTIONS, OPERATIONS)
- * - OPERATIONS dropdown: Charging, Maintenance, Analytics
- * - FAR RIGHT: System status pill, Battery selector, Audio toggle, Settings icon, Mobile menu
- * - Real-time scroll spy: Highlights current section with Electric Lime (#e8ff47) active indicator
+ * - Clean 64px header with 16px backdrop blur and 1px hairline border (#E2E8F0)
+ * - LEFT: BatteryTwin logo, gradient bolt, product title & AI BMS subtitle
+ * - CENTER: Modern navigation pills (Overview, Live Monitoring, Digital Twin, AI Insights, Analytics)
+ * - OPERATIONS DROPDOWN: Charging, Health Analytics, Maintenance
+ * - RIGHT: Visible Connection Status (Connected / Simulated / Disconnected), Battery Selector, User Profile with Sign Out
  */
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Zap, Menu, Settings, Volume2, VolumeX, ChevronDown,
-  BatteryCharging, Wrench, History, LogOut,
+  Zap,
+  Menu,
+  Settings,
+  Volume2,
+  VolumeX,
+  ChevronDown,
+  BatteryCharging,
+  Wrench,
+  History,
+  LogOut,
+  User,
+  Shield,
+  Activity,
+  Box,
+  Cpu,
+  BarChart2
 } from 'lucide-react';
 import { soundEffects } from '../../utils/soundEffects';
 import { scrollToSection, useActiveSection } from '../../utils/scrollNavigation';
@@ -39,30 +50,37 @@ export default function TopNav({
   const navigate = useNavigate();
   const activeSection = useActiveSection();
   const { user, logout } = useAuth();
+
   const [operationsOpen, setOperationsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const [loggingOut, setLoggingOut] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const operationsRef = useRef(null);
+  const profileRef = useRef(null);
 
   const handleLogout = async () => {
-    setLoggingOut(true);
-    await logout();
-    navigate('/login', { replace: true });
+    try {
+      await logout();
+    } finally {
+      navigate('/login', { replace: true });
+    }
   };
 
-  const isHomepage = location.pathname === '/';
+  const isHomepage = location.pathname === '/' || location.pathname === '/dashboard';
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      if (operationsRef.current && !operationsRef.current.contains(e.target)) {
         setOperationsOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleNavClick = (e, sectionId, dedicatedPath) => {
+  const handleNavClick = (e, sectionId, targetRoute) => {
     e.preventDefault();
     soundEffects.playClick();
     setOperationsOpen(false);
@@ -70,9 +88,8 @@ export default function TopNav({
     if (isHomepage) {
       scrollToSection(sectionId);
     } else {
-      // Navigate to homepage with hash target
-      navigate(`/#${sectionId}`);
-      setTimeout(() => scrollToSection(sectionId), 100);
+      navigate(`/dashboard#${sectionId}`);
+      setTimeout(() => scrollToSection(sectionId), 120);
     }
   };
 
@@ -83,36 +100,24 @@ export default function TopNav({
 
   const isSimulator = liveData?.data_source === 'SIMULATOR';
 
-  // Determine active state for navigation items
-  const isOverviewActive = isHomepage ? activeSection === 'overview' : location.pathname === '/';
+  // Active status determinations
+  const isOverviewActive = isHomepage && (!activeSection || activeSection === 'overview');
   const isLiveActive = isHomepage ? activeSection === 'live' : location.pathname === '/live';
   const isTwinActive = isHomepage ? activeSection === 'digital-twin' : location.pathname === '/digital-twin';
-  const isHealthActive = isHomepage ? activeSection === 'health' : location.pathname === '/health';
-  const isAiActive = isHomepage ? activeSection === 'agents' : location.pathname === '/agents';
-  const isPredictionsActive = isHomepage ? activeSection === 'predictions' : location.pathname === '/predictions';
-  const isOperationsActive = isHomepage
-    ? ['charging', 'maintenance', 'analytics'].includes(activeSection)
-    : ['/charging', '/maintenance', '/analytics'].includes(location.pathname);
-
-  const navItems = [
-    { id: 'overview', label: 'OVERVIEW', path: '/', isActive: isOverviewActive },
-    { id: 'live', label: 'LIVE', path: '/live', isActive: isLiveActive },
-    { id: 'digital-twin', label: 'TWIN', path: '/digital-twin', isActive: isTwinActive },
-    { id: 'health', label: 'HEALTH', path: '/health', isActive: isHealthActive },
-    { id: 'agents', label: 'AI', path: '/agents', isActive: isAiActive },
-    { id: 'predictions', label: 'PREDICTIONS', path: '/predictions', isActive: isPredictionsActive },
-  ];
+  const isAiActive = isHomepage ? activeSection === 'agents' || activeSection === 'predictions' : ['/agents', '/predictions'].includes(location.pathname);
+  const isAnalyticsActive = isHomepage ? activeSection === 'analytics' : location.pathname === '/analytics';
+  const isOperationsActive = ['/charging', '/health', '/maintenance', '/settings'].includes(location.pathname);
 
   return (
     <header
       style={{
-        height: 58,
-        minHeight: 58,
-        padding: '0 28px',
-        background: 'rgba(4, 4, 10, 0.88)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+        height: 64,
+        minHeight: 64,
+        padding: '0 32px',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid #E2E8F0',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -120,461 +125,517 @@ export default function TopNav({
         top: 0,
         zIndex: 100,
         userSelect: 'none',
+        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
       }}
     >
       {/* ── Left: Brand Title & Deep-Tech Subtitle ──────────────────── */}
       <div
         style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-        onClick={(e) => handleNavClick(e, 'overview', '/')}
+        onClick={(e) => handleNavClick(e, 'overview', '/dashboard')}
       >
         <div
           style={{
-            width: 30,
-            height: 30,
-            borderRadius: 8,
-            background: 'rgba(232, 255, 71, 0.08)',
-            border: '1px solid rgba(232, 255, 71, 0.35)',
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: 'linear-gradient(135deg, #0284C7 0%, #2563EB 50%, #7C3AED 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.28)',
           }}
         >
-          <Zap size={15} color="#e8ff47" />
+          <Zap size={18} color="#FFFFFF" fill="#FFFFFF" />
         </div>
 
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, lineHeight: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, lineHeight: 1 }}>
             <span
               style={{
-                fontFamily: 'Clash Display, sans-serif',
-                fontWeight: 700,
-                fontSize: '1.02rem',
-                color: '#f0f0f8',
-                letterSpacing: '-0.02em',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 800,
+                fontSize: '1.15rem',
+                color: '#0F172A',
+                letterSpacing: '-0.03em',
               }}
             >
-              BATTERY<span style={{ color: '#e8ff47' }}>TWIN</span>
+              Battery<span style={{ color: '#2563EB' }}>Twin</span>
             </span>
-            <span className="pulse-dot-signal" style={{ width: 4, height: 4 }} />
+            <span
+              style={{
+                fontSize: '0.62rem',
+                fontWeight: 700,
+                padding: '2px 6px',
+                borderRadius: 4,
+                backgroundColor: '#EFF6FF',
+                color: '#2563EB',
+                border: '1px solid #BFDBFE',
+                letterSpacing: '0.04em',
+              }}
+            >
+              PRO
+            </span>
           </div>
           <div
             style={{
-              fontSize: '0.58rem',
-              color: '#9898b8',
-              fontFamily: 'JetBrains Mono, monospace',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              marginTop: 2,
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.70rem',
+              color: '#64748B',
+              letterSpacing: '0.01em',
+              marginTop: 3,
             }}
           >
-            AUTONOMOUS AI BMS
+            AI Battery Monitoring &amp; Digital Twin
           </div>
         </div>
       </div>
 
-      {/* ── Center/Right: Primary Section Navigator ─────────────────── */}
+      {/* ── Center: Primary Navigation Links ───────────────────────── */}
       <nav
         className="desktop-top-nav"
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 4,
-          height: '100%',
+          gap: 6,
+          backgroundColor: '#F8FAFC',
+          padding: '4px 6px',
+          borderRadius: 12,
+          border: '1px solid #E2E8F0',
         }}
       >
-        {navItems.map((item) => (
-          <a
-            key={item.id}
-            href={isHomepage ? `#${item.id}` : item.path}
-            onClick={(e) => handleNavClick(e, item.id, item.path)}
-            style={{
-              position: 'relative',
-              height: 58,
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0 14px',
-              fontSize: '0.72rem',
-              fontFamily: 'JetBrains Mono, monospace',
-              fontWeight: item.isActive ? 700 : 500,
-              letterSpacing: '0.08em',
-              color: item.isActive ? '#e8ff47' : '#9898b8',
-              textDecoration: 'none',
-              transition: 'color 0.2s ease',
-              cursor: 'pointer',
-            }}
-            data-cursor="hover"
-          >
-            <span>{item.label}</span>
-
-            {/* Active Electric Lime Underline Indicator */}
-            {item.isActive && (
-              <motion.span
-                layoutId="activeNavIndicator"
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 14,
-                  right: 14,
-                  height: 2,
-                  backgroundColor: '#e8ff47',
-                  boxShadow: '0 0 10px rgba(232, 255, 71, 0.4)',
-                  borderRadius: '2px 2px 0 0',
-                }}
-                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              />
-            )}
-          </a>
-        ))}
-
-        {/* ── Operations Dropdown ───────────────────────────────────── */}
-        <div ref={dropdownRef} style={{ position: 'relative', height: 58, display: 'flex', alignItems: 'center' }}>
-          <button
-            onClick={() => {
-              soundEffects.playClick();
-              setOperationsOpen(!operationsOpen);
-            }}
-            style={{
-              position: 'relative',
-              height: 58,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              padding: '0 14px',
-              fontSize: '0.72rem',
-              fontFamily: 'JetBrains Mono, monospace',
-              fontWeight: isOperationsActive ? 700 : 500,
-              letterSpacing: '0.08em',
-              color: isOperationsActive ? '#e8ff47' : '#9898b8',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'color 0.2s ease',
-            }}
-            data-cursor="hover"
-          >
-            <span>OPERATIONS</span>
-            <ChevronDown
-              size={12}
+        {[
+          { id: 'overview', label: 'Overview', path: '/dashboard', isActive: isOverviewActive, icon: Activity },
+          { id: 'live', label: 'Live Monitoring', path: '/live', isActive: isLiveActive, icon: Activity },
+          { id: 'digital-twin', label: 'Digital Twin', path: '/digital-twin', isActive: isTwinActive, icon: Box },
+          { id: 'agents', label: 'AI Insights', path: '/agents', isActive: isAiActive, icon: Cpu },
+          { id: 'analytics', label: 'Analytics', path: '/analytics', isActive: isAnalyticsActive, icon: BarChart2 },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              onClick={(e) => handleNavClick(e, item.id, item.path)}
               style={{
-                transform: operationsOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s ease',
-                color: isOperationsActive ? '#e8ff47' : '#9898b8',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '7px 14px',
+                borderRadius: 8,
+                border: 'none',
+                backgroundColor: item.isActive ? '#FFFFFF' : 'transparent',
+                color: item.isActive ? '#2563EB' : '#475569',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: item.isActive ? 700 : 500,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+                boxShadow: item.isActive ? '0 1px 3px rgba(15, 23, 42, 0.08)' : 'none',
+                transition: 'all 0.15s ease',
               }}
-            />
+            >
+              <Icon size={14} color={item.isActive ? '#2563EB' : '#64748B'} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
 
-            {/* Active Electric Lime Indicator for Operations */}
-            {isOperationsActive && (
-              <motion.span
-                layoutId="activeNavIndicator"
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 14,
-                  right: 14,
-                  height: 2,
-                  backgroundColor: '#e8ff47',
-                  boxShadow: '0 0 10px rgba(232, 255, 71, 0.4)',
-                  borderRadius: '2px 2px 0 0',
-                }}
-                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-              />
-            )}
+        {/* More Tools / Operations Dropdown */}
+        <div ref={operationsRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setOperationsOpen((p) => !p)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              padding: '7px 12px',
+              borderRadius: 8,
+              border: 'none',
+              backgroundColor: isOperationsActive ? '#FFFFFF' : 'transparent',
+              color: isOperationsActive ? '#2563EB' : '#475569',
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: isOperationsActive ? 700 : 500,
+              fontSize: '0.84rem',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <span>Operations</span>
+            <ChevronDown size={13} style={{ transform: operationsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </button>
 
-          {/* Floating Luxury Dropdown Menu */}
-          <AnimatePresence>
-            {operationsOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          {operationsOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: 8,
+                width: 220,
+                backgroundColor: '#FFFFFF',
+                borderRadius: 12,
+                border: '1px solid #E2E8F0',
+                boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.04)',
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                zIndex: 110,
+              }}
+            >
+              <Link
+                to="/charging"
+                onClick={() => setOperationsOpen(false)}
                 style={{
-                  position: 'absolute',
-                  top: 54,
-                  right: 0,
-                  width: 250,
-                  background: 'rgba(8, 8, 18, 0.96)',
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 10,
-                  padding: 8,
-                  boxShadow: '0 20px 48px rgba(0, 0, 0, 0.8), 0 0 24px rgba(232, 255, 71, 0.06)',
-                  zIndex: 200,
                   display: 'flex',
-                  flexDirection: 'column',
-                  gap: 4,
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  color: '#0F172A',
+                  fontSize: '0.84rem',
+                  fontWeight: 500,
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
-                <div
-                  style={{
-                    fontSize: '0.62rem',
-                    color: 'rgba(152, 152, 184, 0.6)',
-                    fontFamily: 'JetBrains Mono',
-                    letterSpacing: '0.1em',
-                    padding: '6px 10px 4px 10px',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  SYSTEM OPERATIONS
-                </div>
+                <BatteryCharging size={16} color="#2563EB" />
+                <span>Charging Optimization</span>
+              </Link>
 
-                {/* Charging Optimizer */}
-                <div
-                  onClick={(e) => handleNavClick(e, 'charging', '/charging')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 10px',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                    background: activeSection === 'charging' ? 'rgba(232, 255, 71, 0.08)' : 'transparent',
-                    transition: 'all 0.15s ease',
-                  }}
-                  data-cursor="hover"
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <BatteryCharging size={15} color={activeSection === 'charging' ? '#e8ff47' : '#9898b8'} />
-                    <span style={{ fontFamily: 'Cabinet Grotesk', fontSize: '0.82rem', fontWeight: 600, color: '#f0f0f8' }}>
-                      Charging Optimizer
-                    </span>
-                  </div>
-                  <Link
-                    to="/charging"
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ fontSize: '0.64rem', color: '#9898b8', fontFamily: 'JetBrains Mono', textDecoration: 'none' }}
-                    title="Open Dedicated Route"
-                  >
-                    /07 ↗
-                  </Link>
-                </div>
+              <Link
+                to="/health"
+                onClick={() => setOperationsOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  color: '#0F172A',
+                  fontSize: '0.84rem',
+                  fontWeight: 500,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <Activity size={16} color="#16A34A" />
+                <span>Health Analytics</span>
+              </Link>
 
-                {/* Maintenance */}
-                <div
-                  onClick={(e) => handleNavClick(e, 'maintenance', '/maintenance')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 10px',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                    background: activeSection === 'maintenance' ? 'rgba(232, 255, 71, 0.08)' : 'transparent',
-                    transition: 'all 0.15s ease',
-                  }}
-                  data-cursor="hover"
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <Wrench size={15} color={activeSection === 'maintenance' ? '#e8ff47' : '#9898b8'} />
-                    <span style={{ fontFamily: 'Cabinet Grotesk', fontSize: '0.82rem', fontWeight: 600, color: '#f0f0f8' }}>
-                      Prescribed Maintenance
-                    </span>
-                  </div>
-                  <Link
-                    to="/maintenance"
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ fontSize: '0.64rem', color: '#9898b8', fontFamily: 'JetBrains Mono', textDecoration: 'none' }}
-                    title="Open Dedicated Route"
-                  >
-                    /08 ↗
-                  </Link>
-                </div>
+              <Link
+                to="/maintenance"
+                onClick={() => setOperationsOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  color: '#0F172A',
+                  fontSize: '0.84rem',
+                  fontWeight: 500,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <Wrench size={16} color="#D97706" />
+                <span>Maintenance &amp; Relay</span>
+              </Link>
 
-                {/* Historical Analytics */}
-                <div
-                  onClick={(e) => handleNavClick(e, 'analytics', '/analytics')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 10px',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                    background: activeSection === 'analytics' ? 'rgba(232, 255, 71, 0.08)' : 'transparent',
-                    transition: 'all 0.15s ease',
-                  }}
-                  data-cursor="hover"
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <History size={15} color={activeSection === 'analytics' ? '#e8ff47' : '#9898b8'} />
-                    <span style={{ fontFamily: 'Cabinet Grotesk', fontSize: '0.82rem', fontWeight: 600, color: '#f0f0f8' }}>
-                      Historical Analytics
-                    </span>
-                  </div>
-                  <Link
-                    to="/analytics"
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ fontSize: '0.64rem', color: '#9898b8', fontFamily: 'JetBrains Mono', textDecoration: 'none' }}
-                    title="Open Dedicated Route"
-                  >
-                    /09 ↗
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              <div style={{ height: 1, backgroundColor: '#E2E8F0', margin: '4px 0' }} />
+
+              <Link
+                to="/settings"
+                onClick={() => setOperationsOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  color: '#64748B',
+                  fontSize: '0.82rem',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <Settings size={15} color="#64748B" />
+                <span>Sensor &amp; Network Config</span>
+              </Link>
+            </div>
+          )}
         </div>
       </nav>
 
-      {/* ── Far Right: Status, Battery Selector, Audio, Settings & Mobile Menu ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        {/* System Status Indicator Capsule */}
+      {/* ── Right: Live Status Capsule + Battery Selector + User Profile ─ */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Connection Status Indicator */}
         <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '4px 10px',
-            borderRadius: 9999,
-            background: 'rgba(13, 13, 31, 0.8)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            fontSize: '0.68rem',
-            fontFamily: 'JetBrains Mono, monospace',
-            color: '#f0f0f8',
-          }}
           className="status-capsule-desktop"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 7,
+            padding: '6px 12px',
+            borderRadius: 9999,
+            backgroundColor: connected
+              ? isSimulator ? '#FFFBEB' : '#F0FDF4'
+              : '#FEF2F2',
+            border: `1px solid ${
+              connected
+                ? isSimulator ? '#FDE68A' : '#BBF7D0'
+                : '#FECACA'
+            }`,
+            fontSize: '0.74rem',
+            fontWeight: 600,
+            color: connected
+              ? isSimulator ? '#B45309' : '#15803D'
+              : '#B91C1C',
+            fontFamily: 'Inter, sans-serif',
+          }}
         >
           <span
             style={{
-              width: 5,
-              height: 5,
+              width: 7,
+              height: 7,
               borderRadius: '50%',
-              backgroundColor: connected ? '#10b981' : '#f59e0b',
-              boxShadow: `0 0 6px ${connected ? '#10b981' : '#f59e0b'}`,
+              backgroundColor: connected
+                ? isSimulator ? '#D97706' : '#16A34A'
+                : '#DC2626',
+              boxShadow: `0 0 0 2px ${connected ? (isSimulator ? '#FDE68A' : '#BBF7D0') : '#FECACA'}`,
             }}
           />
-          <span>{connected ? 'WS LIVE' : 'REST'}</span>
+          <span>
+            {connected
+              ? isSimulator ? 'Simulated Data' : 'Hardware Connected'
+              : 'Disconnected'}
+          </span>
         </div>
 
         {/* Battery Selector Dropdown */}
-        <select
-          value={selectedBattery}
-          onChange={(e) => setSelectedBattery(e.target.value)}
-          data-cursor="hover"
-          style={{
-            background: 'rgba(13, 13, 31, 0.85)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            color: '#f0f0f8',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '0.68rem',
-            padding: '4px 8px',
-            borderRadius: 6,
-            cursor: 'pointer',
-            outline: 'none',
-          }}
+        <div
           className="battery-selector-desktop"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 12px',
+            borderRadius: 10,
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            color: '#334155',
+            fontFamily: 'JetBrains Mono, monospace',
+          }}
         >
-          <option value="BATTERY_01">BATTERY_01 (4S3P)</option>
-          <option value="BATTERY_02">BATTERY_02 (AUX)</option>
-        </select>
+          <span>{selectedBattery || 'BATTERY_01'}</span>
+          <span style={{ fontSize: '0.70rem', color: '#94A3B8' }}>(4S3P)</span>
+        </div>
 
-        {/* Audio Mute Switch */}
+        {/* Audio Mute Toggle */}
         <button
           onClick={handleToggleMute}
+          title={isMuted ? 'Unmute telemetry audio' : 'Mute telemetry audio'}
           style={{
-            background: 'rgba(13, 13, 31, 0.75)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            color: isMuted ? '#9898b8' : '#e8ff47',
-            padding: 6,
-            borderRadius: '50%',
-            width: 30,
-            height: 30,
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            border: '1px solid #E2E8F0',
+            backgroundColor: '#FFFFFF',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-          }}
-          title={isMuted ? 'Unmute Audio Feedback' : 'Mute Audio Feedback'}
-          data-cursor="hover"
-        >
-          {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-        </button>
-
-        {/* Settings Control Icon (Small Settings/Menu) */}
-        <button
-          onClick={(e) => {
-            if (isHomepage) {
-              handleNavClick(e, 'settings', '/settings');
-            } else {
-              navigate('/settings');
-            }
-          }}
-          style={{
-            background: location.pathname === '/settings' || (isHomepage && activeSection === 'settings')
-              ? 'rgba(232, 255, 71, 0.12)'
-              : 'rgba(13, 13, 31, 0.75)',
-            border: location.pathname === '/settings' || (isHomepage && activeSection === 'settings')
-              ? '1px solid rgba(232, 255, 71, 0.4)'
-              : '1px solid rgba(255, 255, 255, 0.08)',
-            color: location.pathname === '/settings' || (isHomepage && activeSection === 'settings')
-              ? '#e8ff47'
-              : '#9898b8',
-            padding: 6,
-            borderRadius: '50%',
-            width: 30,
-            height: 30,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
+            color: isMuted ? '#94A3B8' : '#2563EB',
             transition: 'all 0.2s ease',
           }}
-          title="Platform Preferences & Settings"
-          data-cursor="hover"
         >
-          <Settings size={14} />
+          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </button>
 
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          disabled={loggingOut}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 5,
-            background: 'rgba(239,68,68,0.07)',
-            border: '1px solid rgba(239,68,68,0.20)',
-            color: '#ef4444',
-            padding: '5px 11px',
-            borderRadius: 7,
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '0.68rem',
-            fontWeight: 600,
-            letterSpacing: '0.06em',
-            cursor: loggingOut ? 'not-allowed' : 'pointer',
-            opacity: loggingOut ? 0.6 : 1,
-            transition: 'all 0.2s',
-          }}
-          title="Sign out"
-        >
-          <LogOut size={13} />
-          {loggingOut ? 'SIGNING OUT' : 'LOGOUT'}
-        </button>
+        {/* Admin Console Quick Pill (visible when admin) */}
+        {user?.role === 'admin' && (
+          <Link
+            to="/admin/dashboard"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 12px',
+              borderRadius: 8,
+              backgroundColor: '#F5F3FF',
+              border: '1px solid #DDD6FE',
+              color: '#7C3AED',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              transition: 'all 0.18s ease',
+            }}
+          >
+            <Shield size={14} color="#7C3AED" />
+            <span>Admin Console</span>
+          </Link>
+        )}
 
-        {/* Mobile Hamburger Toggle */}
+        {/* User Profile Dropdown */}
+        <div ref={profileRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setProfileOpen((p) => !p)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '5px 10px 5px 6px',
+              borderRadius: 24,
+              border: '1px solid #E2E8F0',
+              backgroundColor: '#FFFFFF',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: '50%',
+                backgroundColor: user?.role === 'admin' ? '#7C3AED' : '#2563EB',
+                color: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.80rem',
+                fontWeight: 700,
+              }}
+            >
+              {user?.full_name ? user.full_name[0].toUpperCase() : 'U'}
+            </div>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#0F172A' }}>
+              {user?.full_name || 'User'}
+            </span>
+            <ChevronDown size={14} color="#64748B" />
+          </button>
+
+          {profileOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: 8,
+                width: 220,
+                backgroundColor: '#FFFFFF',
+                borderRadius: 14,
+                border: '1px solid #E2E8F0',
+                boxShadow: '0 12px 28px -4px rgba(15, 23, 42, 0.12)',
+                padding: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                zIndex: 110,
+              }}
+            >
+              <div style={{ paddingBottom: 8, borderBottom: '1px solid #E2E8F0' }}>
+                <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
+                  {user?.full_name || 'Authenticated Operator'}
+                </div>
+                <div style={{ fontSize: '0.74rem', color: '#64748B', wordBreak: 'break-all' }}>
+                  {user?.email || 'operator@batterytwin.local'}
+                </div>
+                <div style={{ marginTop: 6 }}>
+                  <span
+                    style={{
+                      fontSize: '0.64rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: 9999,
+                      backgroundColor: user?.role === 'admin' ? '#F5F3FF' : '#EFF6FF',
+                      color: user?.role === 'admin' ? '#7C3AED' : '#2563EB',
+                      border: `1px solid ${user?.role === 'admin' ? '#DDD6FE' : '#BFDBFE'}`,
+                    }}
+                  >
+                    {user?.role?.toUpperCase() || 'USER'}
+                  </span>
+                </div>
+              </div>
+
+              {user?.role === 'admin' && (
+                <button
+                  onClick={() => {
+                    setProfileOpen(false);
+                    navigate('/admin/dashboard');
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '8px 10px',
+                    borderRadius: 8,
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    color: '#7C3AED',
+                    fontSize: '0.84rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background-color 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F5F3FF')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                >
+                  <Shield size={15} color="#7C3AED" />
+                  <span>Admin Console</span>
+                </button>
+              )}
+
+              <button
+                onClick={handleLogout}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 10px',
+                  borderRadius: 8,
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  color: '#DC2626',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'background-color 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#FEF2F2')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <LogOut size={15} color="#DC2626" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Hamburger Button */}
         <button
-          onClick={() => {
-            soundEffects.playClick();
-            setMobileOpen(true);
-          }}
+          className="mobile-hamburger-btn"
+          onClick={() => setMobileOpen(true)}
           style={{
-            background: 'rgba(13, 13, 31, 0.75)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            color: '#f0f0f8',
-            padding: 6,
-            borderRadius: '50%',
-            width: 32,
-            height: 32,
             display: 'none',
+            width: 38,
+            height: 38,
+            borderRadius: 10,
+            border: '1px solid #E2E8F0',
+            backgroundColor: '#FFFFFF',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
+            color: '#0F172A',
           }}
-          className="mobile-hamburger-btn"
-          aria-label="Open mobile navigation menu"
         >
-          <Menu size={16} />
+          <Menu size={18} />
         </button>
       </div>
     </header>

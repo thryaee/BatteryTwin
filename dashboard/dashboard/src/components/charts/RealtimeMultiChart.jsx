@@ -1,8 +1,8 @@
 /**
  * src/components/charts/RealtimeMultiChart.jsx
  * --------------------------------------------
- * Nexus Studio Editorial Synchronized Sensor Telemetry Chart.
- * Minimalist dark aesthetics with electric lime voltage, emerald current, and amber temperature.
+ * Commercial Synchronized Sensor Telemetry Chart for BatteryTwin.
+ * High-legibility light aesthetic with Blue Voltage, Purple Current, and Amber Temperature.
  */
 
 import React, { useState } from 'react';
@@ -22,7 +22,7 @@ const RANGES = ['5 min', '15 min', '1 hour', '24 hours'];
 
 export default function RealtimeMultiChart({
   history = [],
-  title = 'REAL-TIME SENSOR TELEMETRY',
+  title = 'REAL-TIME SENSOR TELEMETRY WAVEFORMS',
 }) {
   const [selectedRange, setSelectedRange] = useState('15 min');
 
@@ -42,15 +42,15 @@ export default function RealtimeMultiChart({
 
   return (
     <div
-      className="glass-panel"
       style={{
-        padding: '22px 24px',
+        padding: '24px 26px',
         display: 'flex',
         flexDirection: 'column',
         gap: 16,
-        background: 'rgba(13, 13, 31, 0.65)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
-        borderRadius: 12,
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: 16,
+        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.05)',
       }}
     >
       {/* Header & Range Selector */}
@@ -58,56 +58,39 @@ export default function RealtimeMultiChart({
         <div>
           <h3
             style={{
-              fontFamily: 'Clash Display',
-              fontSize: '1.05rem',
-              fontWeight: 600,
-              color: '#f0f0f8',
+              fontSize: '1.02rem',
+              fontWeight: 700,
+              color: '#0F172A',
+              fontFamily: 'Inter, sans-serif',
               letterSpacing: '-0.02em',
-              margin: 0,
+              margin: '0 0 4px 0',
             }}
           >
             {title}
           </h3>
-          <p
-            style={{
-              fontSize: '0.72rem',
-              color: '#9898b8',
-              margin: '3px 0 0 0',
-              fontFamily: 'Cabinet Grotesk',
-            }}
-          >
-            Continuous physical INA219 & DS18B20 multi-bus synchronization
-          </p>
+          <span style={{ fontSize: '0.74rem', color: '#64748B' }}>
+            INA219 high-side shunt &amp; DS18B20 digital 1-Wire temperature bus
+          </span>
         </div>
 
-        {/* Range Buttons */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 4,
-            background: 'rgba(8, 8, 18, 0.8)',
-            padding: 3,
-            borderRadius: 9999,
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-          }}
-        >
+        {/* Range Selector Pills */}
+        <div style={{ display: 'flex', gap: 4, backgroundColor: '#F8FAFC', padding: 4, borderRadius: 10, border: '1px solid #E2E8F0' }}>
           {RANGES.map((r) => (
             <button
               key={r}
               onClick={() => handleRangeChange(r)}
-              data-cursor="hover"
               style={{
-                background: selectedRange === r ? 'rgba(232, 255, 71, 0.12)' : 'transparent',
-                borderColor: selectedRange === r ? '#e8ff47' : 'transparent',
-                color: selectedRange === r ? '#e8ff47' : '#9898b8',
-                border: '1px solid',
-                padding: '4px 10px',
-                fontSize: '0.68rem',
-                borderRadius: 9999,
+                padding: '5px 12px',
+                borderRadius: 7,
+                border: 'none',
+                backgroundColor: selectedRange === r ? '#FFFFFF' : 'transparent',
+                color: selectedRange === r ? '#2563EB' : '#64748B',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: selectedRange === r ? 700 : 500,
+                fontSize: '0.74rem',
                 cursor: 'pointer',
-                fontFamily: 'JetBrains Mono',
-                fontWeight: 600,
-                transition: 'all 0.2s ease',
+                boxShadow: selectedRange === r ? '0 1px 2px rgba(15, 23, 42, 0.08)' : 'none',
+                transition: 'all 0.15s ease',
               }}
             >
               {r}
@@ -116,88 +99,108 @@ export default function RealtimeMultiChart({
         </div>
       </div>
 
-      {/* Chart Canvas */}
-      {chartData.length > 1 ? (
-        <div style={{ height: 260, width: '100%', marginTop: 6 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.04)" />
-              <XAxis
-                dataKey="time"
-                stroke="#9898b8"
-                fontSize={10}
-                tickLine={false}
-                fontFamily="JetBrains Mono"
-              />
-              <YAxis
-                stroke="#9898b8"
-                fontSize={10}
-                tickLine={false}
-                fontFamily="JetBrains Mono"
-              />
-              <Tooltip
-                contentStyle={{
-                  background: 'rgba(8, 8, 18, 0.95)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  fontFamily: 'JetBrains Mono',
-                  color: '#f0f0f8',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-                }}
-              />
-              <Legend
-                wrapperStyle={{
-                  fontSize: '0.72rem',
-                  fontFamily: 'JetBrains Mono',
-                  paddingTop: 10,
-                }}
-              />
-              {/* Electric Lime for Voltage */}
-              <Line
-                type="monotone"
-                dataKey="Voltage (V)"
-                stroke="#e8ff47"
-                strokeWidth={2}
-                dot={false}
-                isAnimationActive={false}
-              />
-              {/* Emerald for Current */}
-              <Line
-                type="monotone"
-                dataKey="Current (A)"
-                stroke="#10b981"
-                strokeWidth={2}
-                dot={false}
-                isAnimationActive={false}
-              />
-              {/* Warm Amber for Temperature */}
-              <Line
-                type="monotone"
-                dataKey="Temp (°C)"
-                stroke="#f59e0b"
-                strokeWidth={2}
-                dot={false}
-                isAnimationActive={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+      {/* Main Multi-Metric Chart Canvas */}
+      <div style={{ width: '100%', height: 280 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+            <XAxis
+              dataKey="time"
+              stroke="#94A3B8"
+              fontSize={11}
+              tickLine={false}
+              axisLine={{ stroke: '#E2E8F0' }}
+            />
+            <YAxis
+              yAxisId="voltage"
+              orientation="left"
+              domain={['auto', 'auto']}
+              stroke="#2563EB"
+              fontSize={11}
+              tickLine={false}
+              axisLine={{ stroke: '#E2E8F0' }}
+              tickFormatter={(v) => `${v}V`}
+            />
+            <YAxis
+              yAxisId="temp"
+              orientation="right"
+              domain={[15, 55]}
+              stroke="#D97706"
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) => `${v}°C`}
+            />
+
+            <Tooltip
+              contentStyle={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: 10,
+                boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.12)',
+                fontSize: 12,
+                color: '#0F172A',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            />
+
+            <Legend
+              verticalAlign="top"
+              align="right"
+              iconType="circle"
+              wrapperStyle={{ fontSize: 12, paddingBottom: 10, fontFamily: 'Inter, sans-serif' }}
+            />
+
+            <Line
+              yAxisId="voltage"
+              type="monotone"
+              dataKey="Voltage (V)"
+              stroke="#2563EB"
+              strokeWidth={2.5}
+              dot={false}
+              isAnimationActive={false}
+            />
+            <Line
+              yAxisId="voltage"
+              type="monotone"
+              dataKey="Current (A)"
+              stroke="#7C3AED"
+              strokeWidth={2}
+              strokeDasharray="4 4"
+              dot={false}
+              isAnimationActive={false}
+            />
+            <Line
+              yAxisId="temp"
+              type="monotone"
+              dataKey="Temp (°C)"
+              stroke="#D97706"
+              strokeWidth={2}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Synchronized Legend Badges */}
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', borderTop: '1px solid #F1F5F9', paddingTop: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.74rem', color: '#475569' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#2563EB' }} />
+          <span style={{ fontWeight: 600 }}>Pack Voltage</span>
+          <span style={{ color: '#94A3B8' }}>(Nominal 14.80V)</span>
         </div>
-      ) : (
-        <div
-          style={{
-            height: 220,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#9898b8',
-            fontSize: '0.78rem',
-            fontFamily: 'JetBrains Mono',
-          }}
-        >
-          Gathering live telemetry stream datapoints...
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.74rem', color: '#475569' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#7C3AED' }} />
+          <span style={{ fontWeight: 600 }}>Net Current</span>
+          <span style={{ color: '#94A3B8' }}>(Charge/Discharge)</span>
         </div>
-      )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.74rem', color: '#475569' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#D97706' }} />
+          <span style={{ fontWeight: 600 }}>Core Temperature</span>
+          <span style={{ color: '#94A3B8' }}>(&lt; 45°C Normal)</span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,481 +1,508 @@
 /**
  * src/pages/RegisterPage.jsx
  * --------------------------
- * User registration page for BatteryTwin.
- *
- * Features:
- *   - Full name, email, password, confirm password fields
- *   - Show/hide password toggles (both fields independently)
- *   - Password strength meter (visual)
- *   - Inline field validation (required, email format, policy, match)
- *   - Server error display (duplicate email, policy violations from API)
- *   - Loading + disabled state during request
- *   - On success: shows confirmation then redirects to /login
- *   - Role is NEVER sent in the request body (backend always assigns "user")
- *   - Keyboard accessible, labeled, aria-live error region
+ * BatteryTwin User Registration Page.
+ * Styled with matching split-screen layout, AuthBatteryHero,
+ * interactive password strength meter, larger typography & boxes, and full responsiveness.
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AuthBatteryHero from '../components/auth/AuthBatteryHero';
+import BatteryChargingExperience from '../components/auth/BatteryChargingExperience';
 
-// ── Icons ──────────────────────────────────────────────────────────
+// ── Validation Helpers ──────────────────────────────────────────────
+function validateEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Enter a valid email address.';
+}
+function validateFullName(v) {
+  return v && v.trim().length >= 2 ? '' : 'Full name is required (min 2 characters).';
+}
+function validatePassword(v) {
+  if (!v || v.length < 8) return 'Password must be at least 8 characters long.';
+  return '';
+}
 
-const EyeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-    strokeLinecap="round" strokeLinejoin="round" style={{ width: 17, height: 17 }}>
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-
-const EyeOffIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-    strokeLinecap="round" strokeLinejoin="round" style={{ width: 17, height: 17 }}>
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-    <line x1="1" y1="1" x2="23" y2="23" />
-  </svg>
-);
-
-// ── Password strength ──────────────────────────────────────────────
-
+// ── Password Strength Calculator ───────────────────────────────────
 function calcStrength(pw) {
   if (!pw) return 0;
   let score = 0;
-  if (pw.length >= 8)  score++;
-  if (pw.length >= 12) score++;
+  if (pw.length >= 8) score++;
   if (/[A-Z]/.test(pw)) score++;
-  if (/[a-z]/.test(pw)) score++;
-  if (/\d/.test(pw))    score++;
+  if (/[0-9]/.test(pw)) score++;
   if (/[^A-Za-z0-9]/.test(pw)) score++;
-  return Math.min(score, 4);
+  return score; // 0..4
 }
 
 const STRENGTH_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
-const STRENGTH_COLORS = ['', '#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
-
-function StrengthMeter({ password }) {
-  const level = calcStrength(password);
-  if (!password) return null;
-  return (
-    <div style={{ marginTop: 8 }}>
-      <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-        {[1, 2, 3, 4].map(i => (
-          <div
-            key={i}
-            style={{
-              flex: 1, height: 3, borderRadius: 2,
-              background: i <= level ? STRENGTH_COLORS[level] : 'rgba(255,255,255,0.1)',
-              transition: 'background 0.3s',
-            }}
-          />
-        ))}
-      </div>
-      <span style={{
-        fontSize: '0.72rem',
-        color: STRENGTH_COLORS[level] || 'var(--mist-900)',
-        fontFamily: 'var(--font-mono, monospace)',
-      }}>
-        {STRENGTH_LABELS[level]}
-      </span>
-    </div>
-  );
-}
-
-// ── Validation ─────────────────────────────────────────────────────
-
-const MIN_PW = 8;
-
-function validateFields(fields) {
-  const errs = {};
-  if (!fields.fullName.trim() || fields.fullName.trim().length < 2)
-    errs.fullName = 'Full name must be at least 2 characters.';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email))
-    errs.email = 'Enter a valid email address.';
-  if (fields.password.length < MIN_PW)
-    errs.password = `Password must be at least ${MIN_PW} characters.`;
-  else if (!/[A-Z]/.test(fields.password))
-    errs.password = 'Password needs at least one uppercase letter.';
-  else if (!/[a-z]/.test(fields.password))
-    errs.password = 'Password needs at least one lowercase letter.';
-  else if (!/\d/.test(fields.password))
-    errs.password = 'Password needs at least one number.';
-  if (!fields.confirmPassword)
-    errs.confirmPassword = 'Please confirm your password.';
-  else if (fields.password !== fields.confirmPassword)
-    errs.confirmPassword = 'Passwords do not match.';
-  return errs;
-}
-
-// ── Component ──────────────────────────────────────────────────────
+const STRENGTH_COLORS = ['', '#EF4444', '#F59E0B', '#3B82F6', '#10B981'];
 
 export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [fields, setFields] = useState({
-    fullName: '', email: '', password: '', confirmPassword: '',
-  });
-  const [showPw, setShowPw]         = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [showPw, setShowPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+
   const [fieldErrors, setFieldErrors] = useState({});
   const [serverError, setServerError] = useState('');
-  const [loading, setLoading]         = useState(false);
-  const [success, setSuccess]         = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showChargingAnim, setShowChargingAnim] = useState(false);
 
-  function update(key, val) {
-    setFields(f => ({ ...f, [key]: val }));
-    setFieldErrors(e => ({ ...e, [key]: '' }));
+  const pwStrength = calcStrength(password);
+
+  function validate() {
+    const errs = {};
+    const nErr = validateFullName(fullName);
+    const eErr = validateEmail(email.trim());
+    const pErr = validatePassword(password);
+
+    if (nErr) errs.fullName = nErr;
+    if (eErr) errs.email = eErr;
+    if (pErr) errs.password = pErr;
+    if (password !== confirmPassword) {
+      errs.confirmPassword = 'Passwords do not match.';
+    }
+
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
   }
 
-  async function handleSubmit(e) {
+  async function handleRegisterSubmit(e) {
     e.preventDefault();
     setServerError('');
-    const errs = validateFields(fields);
-    if (Object.keys(errs).length) { setFieldErrors(errs); return; }
+    if (!validate()) return;
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
-      await register(fields.fullName, fields.email, fields.password, fields.confirmPassword);
-      setSuccess(true);
-      setTimeout(() => navigate('/login', { state: { registered: true } }), 2200);
+      await register(fullName.trim(), email.trim(), password, confirmPassword);
+      setShowChargingAnim(true);
     } catch (err) {
       const detail = err?.response?.data?.detail;
-      if (Array.isArray(detail)) {
-        setServerError(detail.join(' '));
-      } else if (typeof detail === 'string') {
-        setServerError(detail);
-      } else {
-        setServerError('Registration failed. Please try again.');
-      }
+      setServerError(typeof detail === 'string' ? detail : 'Registration failed. Please try again.');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.gridBg} aria-hidden="true" />
-      <div style={styles.glowOrb} aria-hidden="true" />
+    <div
+      className="auth-screen-layout"
+      style={{
+        minHeight: '100vh',
+        width: '100vw',
+        display: 'flex',
+        backgroundColor: '#FFFFFF',
+        fontFamily: 'Inter, sans-serif',
+      }}
+    >
+      {/* ── Left Side: 3D Battery Showcase & Branding ───────────────── */}
+      <div className="auth-hero-pane" style={{ flex: 1.15, minHeight: '100vh', display: 'flex' }}>
+        <AuthBatteryHero />
+      </div>
 
-      <div style={styles.wrapper}>
-        {/* Brand */}
-        <header style={styles.brand}>
-          <h1 style={styles.brandName}>BatteryTwin</h1>
-          <p style={styles.brandSub}>Create your account</p>
-        </header>
+      {/* ── Right Side: Elevated Registration Panel ─────────────────── */}
+      <div
+        className="auth-form-pane"
+        style={{
+          flex: 1,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 'clamp(28px, 4vw, 56px) clamp(20px, 3.5vw, 48px)',
+          boxSizing: 'border-box',
+          backgroundColor: '#FFFFFF',
+          position: 'relative',
+          zIndex: 3,
+        }}
+      >
+        <div
+          className="auth-form-card"
+          style={{
+            width: '100%',
+            maxWidth: 490,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 24,
+          }}
+        >
+          {/* Header */}
+          <div style={{ textAlign: 'center' }}>
+            <h1
+              style={{
+                fontSize: 'clamp(1.9rem, 2.6vw, 2.45rem)',
+                fontWeight: 900,
+                color: '#0F172A',
+                margin: '0 0 8px 0',
+                letterSpacing: '-0.03em',
+                lineHeight: 1.15,
+              }}
+            >
+              Create Your Account
+            </h1>
+            <p
+              style={{
+                fontSize: 'clamp(0.92rem, 1.1vw, 1.02rem)',
+                color: '#64748B',
+                margin: 0,
+                lineHeight: 1.45,
+              }}
+            >
+              Join BatteryTwin to deploy predictive AI &amp; 3D Digital Twin telemetry
+            </p>
+          </div>
 
-        {/* Card */}
-        <div style={styles.card}>
-          {success ? (
-            <div style={{ textAlign: 'center', padding: '12px 0' }}>
-              <div style={styles.successIcon}>✓</div>
-              <h2 style={styles.successTitle}>Account Created!</h2>
-              <p style={styles.successBody}>
-                Your BatteryTwin account has been created successfully.
-                Redirecting you to sign in…
-              </p>
+          {/* Server Error Banner */}
+          {serverError && (
+            <div
+              style={{
+                backgroundColor: '#FEF2F2',
+                border: '1px solid #FECACA',
+                borderRadius: 12,
+                padding: '14px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                color: '#B91C1C',
+                fontSize: '0.90rem',
+                fontWeight: 600,
+              }}
+            >
+              <AlertCircle size={20} color="#DC2626" style={{ flexShrink: 0 }} />
+              <span>{serverError}</span>
             </div>
-          ) : (
-            <>
-              <h2 style={styles.cardTitle}>Create Account</h2>
+          )}
 
-              {serverError && (
-                <div style={styles.errorBanner} role="alert" aria-live="assertive">
-                  {serverError}
+          {/* Form */}
+          <form onSubmit={handleRegisterSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {/* Full Name */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 700, color: '#334155', marginBottom: 7 }}>
+                Full Name
+              </label>
+              <div
+                className="input-focus-wrapper"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: '#FFFFFF',
+                  border: `2px solid ${fieldErrors.fullName ? '#EF4444' : '#E2E8F0'}`,
+                  borderRadius: 14,
+                  padding: '14px 18px',
+                  boxShadow: '0 2px 4px rgba(15, 23, 42, 0.03)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <User size={20} color="#94A3B8" style={{ marginRight: 12, flexShrink: 0 }} />
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => {
+                    setFullName(e.target.value);
+                    if (fieldErrors.fullName) setFieldErrors((f) => ({ ...f, fullName: '' }));
+                  }}
+                  placeholder="e.g. John Doe"
+                  disabled={isSubmitting}
+                  style={{
+                    border: 'none',
+                    outline: 'none',
+                    width: '100%',
+                    fontSize: '1.02rem',
+                    color: '#0F172A',
+                    fontFamily: 'Inter, sans-serif',
+                    backgroundColor: 'transparent',
+                  }}
+                />
+              </div>
+              {fieldErrors.fullName && (
+                <div style={{ color: '#DC2626', fontSize: '0.78rem', marginTop: 6, marginLeft: 4, fontWeight: 600 }}>
+                  {fieldErrors.fullName}
+                </div>
+              )}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 700, color: '#334155', marginBottom: 7 }}>
+                Email Address
+              </label>
+              <div
+                className="input-focus-wrapper"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: '#FFFFFF',
+                  border: `2px solid ${fieldErrors.email ? '#EF4444' : '#E2E8F0'}`,
+                  borderRadius: 14,
+                  padding: '14px 18px',
+                  boxShadow: '0 2px 4px rgba(15, 23, 42, 0.03)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Mail size={20} color="#94A3B8" style={{ marginRight: 12, flexShrink: 0 }} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (fieldErrors.email) setFieldErrors((f) => ({ ...f, email: '' }));
+                  }}
+                  placeholder="you@company.com"
+                  disabled={isSubmitting}
+                  style={{
+                    border: 'none',
+                    outline: 'none',
+                    width: '100%',
+                    fontSize: '1.02rem',
+                    color: '#0F172A',
+                    fontFamily: 'Inter, sans-serif',
+                    backgroundColor: 'transparent',
+                  }}
+                />
+              </div>
+              {fieldErrors.email && (
+                <div style={{ color: '#DC2626', fontSize: '0.78rem', marginTop: 6, marginLeft: 4, fontWeight: 600 }}>
+                  {fieldErrors.email}
+                </div>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 700, color: '#334155', marginBottom: 7 }}>
+                Password
+              </label>
+              <div
+                className="input-focus-wrapper"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: '#FFFFFF',
+                  border: `2px solid ${fieldErrors.password ? '#EF4444' : '#E2E8F0'}`,
+                  borderRadius: 14,
+                  padding: '14px 18px',
+                  boxShadow: '0 2px 4px rgba(15, 23, 42, 0.03)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Lock size={20} color="#94A3B8" style={{ marginRight: 12, flexShrink: 0 }} />
+                <input
+                  type={showPw ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: '' }));
+                  }}
+                  placeholder="Password (min 8 characters)"
+                  disabled={isSubmitting}
+                  style={{
+                    border: 'none',
+                    outline: 'none',
+                    width: '100%',
+                    fontSize: '1.02rem',
+                    color: '#0F172A',
+                    fontFamily: 'Inter, sans-serif',
+                    backgroundColor: 'transparent',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw((v) => !v)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0 }}
+                >
+                  {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              {/* Password Strength Meter */}
+              {password && (
+                <div style={{ marginTop: 8, paddingLeft: 4 }}>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 5 }}>
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        style={{
+                          flex: 1,
+                          height: 4,
+                          borderRadius: 2,
+                          backgroundColor: i <= pwStrength ? STRENGTH_COLORS[pwStrength] : '#E2E8F0',
+                          transition: 'background-color 0.2s ease',
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <span style={{ fontSize: '0.78rem', color: STRENGTH_COLORS[pwStrength], fontWeight: 700 }}>
+                    Security Strength: {STRENGTH_LABELS[pwStrength]}
+                  </span>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} noValidate aria-label="Registration form">
-
-                {/* Full name */}
-                <div style={styles.field}>
-                  <label htmlFor="rg-name" style={styles.label}>Full Name</label>
-                  <input
-                    id="rg-name" type="text" autoComplete="name"
-                    value={fields.fullName}
-                    onChange={e => update('fullName', e.target.value)}
-                    placeholder="Jane Smith"
-                    disabled={loading}
-                    aria-invalid={!!fieldErrors.fullName}
-                    aria-describedby={fieldErrors.fullName ? 'name-err' : undefined}
-                    style={{
-                      ...styles.input,
-                      ...(fieldErrors.fullName ? styles.inputError : {}),
-                    }}
-                  />
-                  {fieldErrors.fullName && (
-                    <span id="name-err" style={styles.fieldError} role="alert">
-                      {fieldErrors.fullName}
-                    </span>
-                  )}
+              {fieldErrors.password && (
+                <div style={{ color: '#DC2626', fontSize: '0.78rem', marginTop: 6, marginLeft: 4, fontWeight: 600 }}>
+                  {fieldErrors.password}
                 </div>
+              )}
+            </div>
 
-                {/* Email */}
-                <div style={styles.field}>
-                  <label htmlFor="rg-email" style={styles.label}>Email Address</label>
-                  <input
-                    id="rg-email" type="email" autoComplete="email"
-                    value={fields.email}
-                    onChange={e => update('email', e.target.value)}
-                    placeholder="you@example.com"
-                    disabled={loading}
-                    aria-invalid={!!fieldErrors.email}
-                    aria-describedby={fieldErrors.email ? 'email-err' : undefined}
-                    style={{
-                      ...styles.input,
-                      ...(fieldErrors.email ? styles.inputError : {}),
-                    }}
-                  />
-                  {fieldErrors.email && (
-                    <span id="email-err" style={styles.fieldError} role="alert">
-                      {fieldErrors.email}
-                    </span>
-                  )}
-                </div>
-
-                {/* Password */}
-                <div style={styles.field}>
-                  <label htmlFor="rg-password" style={styles.label}>Password</label>
-                  <div style={styles.pwWrapper}>
-                    <input
-                      id="rg-password"
-                      type={showPw ? 'text' : 'password'}
-                      autoComplete="new-password"
-                      value={fields.password}
-                      onChange={e => update('password', e.target.value)}
-                      placeholder="Min. 8 characters"
-                      disabled={loading}
-                      aria-invalid={!!fieldErrors.password}
-                      aria-describedby={fieldErrors.password ? 'pw-err' : 'pw-hint'}
-                      style={{
-                        ...styles.input,
-                        paddingRight: 44,
-                        ...(fieldErrors.password ? styles.inputError : {}),
-                      }}
-                    />
-                    <button type="button" onClick={() => setShowPw(v => !v)}
-                      aria-label={showPw ? 'Hide password' : 'Show password'}
-                      style={styles.eyeBtn}>
-                      {showPw ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
-                  </div>
-                  <span id="pw-hint" style={{ display: 'none' }}>
-                    At least 8 characters with uppercase, lowercase, and a number.
-                  </span>
-                  {fieldErrors.password ? (
-                    <span id="pw-err" style={styles.fieldError} role="alert">
-                      {fieldErrors.password}
-                    </span>
-                  ) : (
-                    <StrengthMeter password={fields.password} />
-                  )}
-                </div>
-
-                {/* Confirm password */}
-                <div style={styles.field}>
-                  <label htmlFor="rg-confirm" style={styles.label}>Confirm Password</label>
-                  <div style={styles.pwWrapper}>
-                    <input
-                      id="rg-confirm"
-                      type={showConfirm ? 'text' : 'password'}
-                      autoComplete="new-password"
-                      value={fields.confirmPassword}
-                      onChange={e => update('confirmPassword', e.target.value)}
-                      placeholder="Re-enter your password"
-                      disabled={loading}
-                      aria-invalid={!!fieldErrors.confirmPassword}
-                      aria-describedby={fieldErrors.confirmPassword ? 'conf-err' : undefined}
-                      style={{
-                        ...styles.input,
-                        paddingRight: 44,
-                        ...(fieldErrors.confirmPassword ? styles.inputError : {}),
-                      }}
-                    />
-                    <button type="button" onClick={() => setShowConfirm(v => !v)}
-                      aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                      style={styles.eyeBtn}>
-                      {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
-                  </div>
-                  {fieldErrors.confirmPassword && (
-                    <span id="conf-err" style={styles.fieldError} role="alert">
-                      {fieldErrors.confirmPassword}
-                    </span>
-                  )}
-                  {/* Match indicator */}
-                  {!fieldErrors.confirmPassword && fields.confirmPassword && fields.password && (
-                    <span style={{
-                      fontSize: '0.72rem', marginTop: 5, display: 'block',
-                      color: fields.password === fields.confirmPassword
-                        ? 'var(--status-healthy, #10b981)' : 'var(--status-critical, #ef4444)',
-                    }}>
-                      {fields.password === fields.confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
-                    </span>
-                  )}
-                </div>
-
-                {/* Policy note */}
-                <p style={styles.policyNote}>
-                  Password must be at least 8 characters and include uppercase,
-                  lowercase, and a number.
-                </p>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    ...styles.submitBtn,
-                    opacity: loading ? 0.75 : 1,
-                    cursor: loading ? 'not-allowed' : 'pointer',
+            {/* Confirm Password */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 700, color: '#334155', marginBottom: 7 }}>
+                Confirm Password
+              </label>
+              <div
+                className="input-focus-wrapper"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: '#FFFFFF',
+                  border: `2px solid ${fieldErrors.confirmPassword ? '#EF4444' : '#E2E8F0'}`,
+                  borderRadius: 14,
+                  padding: '14px 18px',
+                  boxShadow: '0 2px 4px rgba(15, 23, 42, 0.03)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <Lock size={20} color="#94A3B8" style={{ marginRight: 12, flexShrink: 0 }} />
+                <input
+                  type={showConfirmPw ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (fieldErrors.confirmPassword) setFieldErrors((f) => ({ ...f, confirmPassword: '' }));
                   }}
+                  placeholder="Repeat your password"
+                  disabled={isSubmitting}
+                  style={{
+                    border: 'none',
+                    outline: 'none',
+                    width: '100%',
+                    fontSize: '1.02rem',
+                    color: '#0F172A',
+                    fontFamily: 'Inter, sans-serif',
+                    backgroundColor: 'transparent',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPw((v) => !v)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0 }}
                 >
-                  {loading ? (
-                    <span style={styles.btnSpinner}>
-                      <span style={styles.spinDot} />
-                      Creating account…
-                    </span>
-                  ) : 'Create Account'}
+                  {showConfirmPw ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
-              </form>
+              </div>
+              {fieldErrors.confirmPassword && (
+                <div style={{ color: '#DC2626', fontSize: '0.78rem', marginTop: 6, marginLeft: 4, fontWeight: 600 }}>
+                  {fieldErrors.confirmPassword}
+                </div>
+              )}
+            </div>
 
-              <p style={styles.loginRow}>
-                Already have an account?{' '}
-                <Link to="/login" style={styles.loginLink}>Sign in</Link>
-              </p>
-            </>
-          )}
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="login-submit-btn"
+              style={{
+                width: '100%',
+                padding: '16px 24px',
+                borderRadius: 14,
+                border: 'none',
+                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                color: '#FFFFFF',
+                fontSize: '1.08rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                boxShadow: '0 6px 20px rgba(37, 99, 235, 0.40)',
+                transition: 'all 0.22s ease',
+                marginTop: 6,
+              }}
+            >
+              {isSubmitting ? (
+                <span>Creating Account...</span>
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <ArrowRight size={20} />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Back to Login */}
+          <div style={{ textAlign: 'center', marginTop: 10 }}>
+            <Link
+              to="/login"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                color: '#2563EB',
+                textDecoration: 'none',
+                fontSize: '0.94rem',
+                fontWeight: 700,
+              }}
+            >
+              <ArrowLeft size={18} />
+              <span>Back to Login</span>
+            </Link>
+          </div>
         </div>
-
-        <p style={styles.footer}>
-          BatteryTwin &copy; {new Date().getFullYear()}
-        </p>
       </div>
 
-      <style>{`@keyframes bt-spin { to { transform: rotate(360deg); } }`}</style>
+      {/* Charging Animation on Successful Signup */}
+      {showChargingAnim && (
+        <BatteryChargingExperience
+          userName={fullName}
+          onComplete={() => navigate('/login', { replace: true })}
+          durationMs={3000}
+        />
+      )}
+
+      <style>{`
+        .input-focus-wrapper:focus-within {
+          border-color: #2563EB !important;
+          box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14) !important;
+        }
+
+        .login-submit-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          filter: brightness(1.04);
+        }
+
+        @media (max-width: 960px) {
+          .auth-screen-layout {
+            flex-direction: column !important;
+            overflow-y: auto !important;
+          }
+          .auth-hero-pane {
+            flex: none !important;
+            min-height: auto !important;
+            width: 100% !important;
+          }
+          .auth-form-pane {
+            flex: none !important;
+            min-height: auto !important;
+            width: 100% !important;
+            padding: 32px 20px 48px 20px !important;
+          }
+          .auth-form-card {
+            max-width: 100% !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
-
-// ── Styles ─────────────────────────────────────────────────────────
-
-const styles = {
-  page: {
-    minHeight: '100vh', background: 'var(--ink-950, #04040a)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    padding: '24px 16px', fontFamily: 'var(--font-body, system-ui, sans-serif)',
-    position: 'relative', overflow: 'hidden',
-  },
-  gridBg: {
-    position: 'absolute', inset: 0, zIndex: 0,
-    backgroundImage: `linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)`,
-    backgroundSize: '48px 48px', pointerEvents: 'none',
-  },
-  glowOrb: {
-    position: 'absolute', top: '-20%', left: '50%',
-    transform: 'translateX(-50%)',
-    width: 500, height: 350, borderRadius: '50%',
-    background: 'rgba(232,255,71,0.05)', filter: 'blur(80px)',
-    zIndex: 0, pointerEvents: 'none',
-  },
-  wrapper: {
-    position: 'relative', zIndex: 1, width: '100%', maxWidth: 440,
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
-  },
-  brand: { textAlign: 'center' },
-  brandName: {
-    fontFamily: 'var(--font-display, system-ui)', fontWeight: 700,
-    fontSize: '1.7rem', color: 'var(--mist-100, #f0f0f8)',
-    margin: 0, letterSpacing: '-0.02em',
-  },
-  brandSub: {
-    fontSize: '0.8rem', color: 'var(--mist-900, #9898b8)',
-    margin: '4px 0 0', letterSpacing: '0.02em',
-  },
-  card: {
-    width: '100%', background: 'var(--ink-800, #0d0d1f)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 18, padding: '28px 28px',
-    boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
-  },
-  cardTitle: {
-    fontFamily: 'var(--font-display, system-ui)', fontWeight: 700,
-    fontSize: '1.3rem', color: 'var(--mist-100, #f0f0f8)',
-    margin: '0 0 20px',
-  },
-  field: { marginBottom: 16 },
-  label: {
-    display: 'block', marginBottom: 6, fontSize: '0.8rem', fontWeight: 600,
-    color: 'var(--mist-500, #dcdcec)', letterSpacing: '0.04em', textTransform: 'uppercase',
-  },
-  input: {
-    width: '100%', boxSizing: 'border-box',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    borderRadius: 10, padding: '11px 14px',
-    color: 'var(--mist-100, #f0f0f8)',
-    fontFamily: 'var(--font-body, system-ui)', fontSize: '0.95rem',
-    transition: 'border-color 0.2s',
-  },
-  inputError: {
-    borderColor: 'var(--status-critical, #ef4444)',
-    background: 'rgba(239,68,68,0.06)',
-  },
-  fieldError: {
-    display: 'block', marginTop: 5,
-    fontSize: '0.75rem', color: 'var(--status-critical, #ef4444)',
-  },
-  pwWrapper: { position: 'relative' },
-  eyeBtn: {
-    position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-    background: 'none', border: 'none', cursor: 'pointer',
-    color: 'var(--mist-900, #9898b8)', display: 'flex', alignItems: 'center', padding: 2,
-  },
-  policyNote: {
-    fontSize: '0.73rem', color: 'var(--mist-900, #9898b8)',
-    margin: '-6px 0 16px', lineHeight: 1.5,
-  },
-  submitBtn: {
-    width: '100%', padding: '13px',
-    background: 'var(--signal, #e8ff47)', color: 'var(--ink-950, #04040a)',
-    border: 'none', borderRadius: 10,
-    fontFamily: 'var(--font-body, system-ui)', fontWeight: 700,
-    fontSize: '0.95rem', letterSpacing: '0.01em',
-    transition: 'opacity 0.2s',
-  },
-  btnSpinner: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 },
-  spinDot: {
-    width: 14, height: 14, borderRadius: '50%',
-    border: '2px solid rgba(0,0,0,0.2)', borderTopColor: 'rgba(0,0,0,0.8)',
-    animation: 'bt-spin 0.7s linear infinite', display: 'inline-block',
-  },
-  errorBanner: {
-    background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
-    borderRadius: 8, padding: '10px 14px', marginBottom: 16,
-    color: 'var(--status-critical, #ef4444)', fontSize: '0.85rem',
-  },
-  loginRow: {
-    textAlign: 'center', marginTop: 20, marginBottom: 0,
-    fontSize: '0.82rem', color: 'var(--mist-900, #9898b8)',
-  },
-  loginLink: {
-    color: 'var(--signal, #e8ff47)', textDecoration: 'none', fontWeight: 600,
-  },
-  successIcon: {
-    fontSize: '3rem', color: 'var(--status-healthy, #10b981)', marginBottom: 12,
-  },
-  successTitle: {
-    fontFamily: 'var(--font-display, system-ui)', fontWeight: 700,
-    fontSize: '1.3rem', color: 'var(--mist-100, #f0f0f8)', margin: '0 0 10px',
-  },
-  successBody: {
-    fontSize: '0.875rem', color: 'var(--mist-700, #c4c4d8)',
-    lineHeight: 1.6, margin: 0,
-  },
-  footer: {
-    fontSize: '0.72rem', color: 'var(--mist-dim, rgba(255,255,255,0.25))',
-    textAlign: 'center', margin: 0,
-  },
-};

@@ -1,28 +1,22 @@
 /**
  * src/pages/SettingsPage.jsx
  * ---------------------------
- * Page 10: Platform Preferences, 3D Performance, & Diagnostics.
- * Redesigned in Nexus Studio Dark Luxury Editorial aesthetics.
+ * Platform Preferences, 3D Performance, & Diagnostics.
+ * Redesigned in clean, professional light theme.
  */
 
 import React, { useState } from 'react';
 import {
-  Settings,
-  Sliders,
-  Volume2,
-  VolumeX,
-  Radio,
   Sparkles,
+  Volume2,
   Server,
-  ShieldCheck,
+  Activity,
   CheckCircle2,
-  Cpu
+  AlertCircle
 } from 'lucide-react';
 import { fetchHealth } from '../services/api';
 import { soundEffects } from '../utils/soundEffects';
-import MagneticButton from '../components/ui/MagneticButton';
 import StatusBadge from '../components/common/StatusBadge';
-import ScrollReveal from '../components/ui/ScrollReveal';
 
 export default function SettingsPage() {
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -40,7 +34,7 @@ export default function SettingsPage() {
     setTestingPing(true);
     try {
       const res = await fetchHealth();
-      setBackendStatus({ success: true, message: `FastAPI Gateway Nominal (status: ${res.status || 'ok'})` });
+      setBackendStatus({ success: true, message: `FastAPI Gateway Online (status: ${res.status || 'ok'})` });
     } catch (err) {
       setBackendStatus({ success: false, message: `Connection test failed: ${err.message}` });
     } finally {
@@ -49,124 +43,102 @@ export default function SettingsPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 960 }}>
-      {/* Editorial Monumental Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 1000, margin: '0 auto', width: '100%' }}>
+      {/* Page Header */}
       <div
-        className="glass-panel"
         style={{
+          background: '#FFFFFF',
+          borderRadius: 16,
           padding: '24px 28px',
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 16,
-          background: 'linear-gradient(180deg, rgba(13, 13, 31, 0.7) 0%, rgba(8, 8, 18, 0.7) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: 12,
+          gap: 12,
         }}
       >
-        {/* 1. Section Label */}
-        <ScrollReveal delay={0.05} yOffset={30}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <div
-              style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '0.68rem',
-                color: '#e8ff47',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
-            >
-              <span>10 / SYSTEM CONTROLS</span>
-              <span style={{ color: '#444466' }}>—</span>
-              <span>PLATFORM ENVIRONMENT</span>
-            </div>
-            <StatusBadge label="SETTINGS READY" size="sm" />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              System Preferences
+            </span>
+            <span style={{ color: '#94A3B8' }}>&bull;</span>
+            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>Runtime Environment</span>
           </div>
-        </ScrollReveal>
+          <StatusBadge label="CONFIG READY" status="HEALTHY" size="sm" />
+        </div>
 
-        {/* 2. Large Heading */}
-        <ScrollReveal delay={0.12} yOffset={40}>
-          <h1
-            style={{
-              fontFamily: 'Clash Display, sans-serif',
-              fontSize: 'clamp(1.6rem, 3.2vw, 2.8rem)',
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              color: '#f0f0f8',
-              margin: 0,
-              textTransform: 'uppercase',
-            }}
-          >
-            PLATFORM PREFERENCES & RUNTIME DIAGNOSTICS
-          </h1>
-        </ScrollReveal>
-
-        {/* 3. Supporting Text */}
-        <ScrollReveal delay={0.20} yOffset={35}>
-          <p
-            style={{
-              fontFamily: 'Cabinet Grotesk, sans-serif',
-              fontSize: '0.95rem',
-              color: '#9898b8',
-              margin: 0,
-              maxWidth: 720,
-              lineHeight: 1.5,
-            }}
-          >
-            Configure 3D hardware acceleration parameters, Web Audio tactile feedback synthesizer, and query backend REST/WebSocket microservices.
-          </p>
-        </ScrollReveal>
-      </div>
-
-      {/* Settings Cards List (4. Metrics/Config & 5. Diagnostics) */}
-      <ScrollReveal delay={0.28} yOffset={40}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {/* 3D Graphics Fidelity */}
-        <div
-          className="glass-panel"
+        <h1
           style={{
-            padding: 24,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-            background: 'linear-gradient(180deg, rgba(13, 13, 31, 0.65) 0%, rgba(8, 8, 18, 0.75) 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
-            borderRadius: 12,
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '1.75rem',
+            fontWeight: 800,
+            color: '#0F172A',
+            letterSpacing: '-0.02em',
+            margin: 0,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          Platform Settings &amp; Diagnostics
+        </h1>
+
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '0.92rem',
+            color: '#64748B',
+            margin: 0,
+            maxWidth: 720,
+            lineHeight: 1.5,
+          }}
+        >
+          Manage 3D hardware acceleration parameters, Web Audio feedback synthesizer, and query backend REST &amp; WebSocket microservice health.
+        </p>
+      </div>
+
+      {/* Settings Cards List */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* 3D Graphics Fidelity */}
+        <div
+          style={{
+            background: '#FFFFFF',
+            borderRadius: 16,
+            padding: 24,
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 18,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               style={{
-                width: 32,
-                height: 32,
-                borderRadius: 6,
+                width: 40,
+                height: 40,
+                borderRadius: 10,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'rgba(232, 255, 71, 0.08)',
-                border: '1px solid rgba(232, 255, 71, 0.25)',
+                background: '#EFF6FF',
+                border: '1px solid #BFDBFE',
               }}
             >
-              <Sparkles size={16} color="#e8ff47" />
+              <Sparkles size={20} color="#2563EB" />
             </div>
             <div>
               <h3
                 style={{
-                  fontFamily: 'Clash Display, sans-serif',
-                  fontSize: '1.02rem',
-                  color: '#f0f0f8',
-                  letterSpacing: '0.02em',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '1.05rem',
+                  color: '#0F172A',
+                  fontWeight: 700,
                   margin: 0,
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
                 }}
               >
-                3D DIGITAL TWIN GRAPHICS & ACCELERATION
+                3D Digital Twin Graphics Acceleration
               </h3>
-              <div style={{ fontFamily: 'JetBrains Mono', fontSize: '0.64rem', color: '#9898b8' }}>
-                WEBGL RENDER PIPELINE // THREE.JS ENGINE
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: '#64748B', marginTop: 2 }}>
+                WebGL Render Pipeline &bull; Three.js Engine
               </div>
             </div>
           </div>
@@ -176,37 +148,38 @@ export default function SettingsPage() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'rgba(8, 8, 18, 0.75)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               padding: '16px 20px',
-              borderRadius: 8,
+              borderRadius: 12,
               gap: 16,
+              flexWrap: 'wrap',
             }}
           >
             <div>
-              <div style={{ fontFamily: 'Clash Display, sans-serif', fontWeight: 600, fontSize: '0.92rem', color: '#f0f0f8' }}>
+              <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.92rem', color: '#0F172A' }}>
                 Reduced Motion / High-Performance 3D Mode
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#9898b8', fontFamily: 'Cabinet Grotesk', marginTop: 3 }}>
-                Disables idle rotation and particle vortex for lower-end GPUs while preserving full 3D cell interactivity.
+              <div style={{ fontSize: '0.8rem', color: '#64748B', fontFamily: 'Inter, sans-serif', marginTop: 3 }}>
+                Disables idle rotation and extra particles for low-end GPUs while preserving full 3D pack and cell interactivity.
               </div>
             </div>
 
             <button
               onClick={() => setReducedMotion(!reducedMotion)}
               style={{
-                padding: '8px 16px',
-                fontSize: '0.72rem',
-                fontFamily: 'JetBrains Mono, monospace',
+                padding: '8px 18px',
+                fontSize: '0.78rem',
+                fontFamily: 'Inter, sans-serif',
                 fontWeight: 700,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                background: reducedMotion ? '#e8ff47' : 'rgba(255, 255, 255, 0.04)',
-                color: reducedMotion ? '#04040a' : '#9898b8',
-                border: reducedMotion ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: 6,
+                letterSpacing: '0.04em',
+                background: reducedMotion ? '#2563EB' : '#FFFFFF',
+                color: reducedMotion ? '#FFFFFF' : '#475569',
+                border: reducedMotion ? 'none' : '1px solid #CBD5E1',
+                borderRadius: 8,
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.18s ease',
+                boxShadow: reducedMotion ? '0 2px 8px rgba(37, 99, 235, 0.25)' : 'none',
               }}
             >
               {reducedMotion ? 'ENABLED' : 'DISABLED'}
@@ -216,48 +189,46 @@ export default function SettingsPage() {
 
         {/* Audio Telemetry */}
         <div
-          className="glass-panel"
           style={{
+            background: '#FFFFFF',
+            borderRadius: 16,
             padding: 24,
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 16,
-            background: 'linear-gradient(180deg, rgba(13, 13, 31, 0.65) 0%, rgba(8, 8, 18, 0.75) 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
-            borderRadius: 12,
+            gap: 18,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               style={{
-                width: 32,
-                height: 32,
-                borderRadius: 6,
+                width: 40,
+                height: 40,
+                borderRadius: 10,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'rgba(232, 255, 71, 0.08)',
-                border: '1px solid rgba(232, 255, 71, 0.25)',
+                background: '#F5F3FF',
+                border: '1px solid #DDD6FE',
               }}
             >
-              <Volume2 size={16} color="#e8ff47" />
+              <Volume2 size={20} color="#7C3AED" />
             </div>
             <div>
               <h3
                 style={{
-                  fontFamily: 'Clash Display, sans-serif',
-                  fontSize: '1.02rem',
-                  color: '#f0f0f8',
-                  letterSpacing: '0.02em',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '1.05rem',
+                  color: '#0F172A',
+                  fontWeight: 700,
                   margin: 0,
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
                 }}
               >
-                AUDIO TELEMETRY FEEDBACK
+                Acoustic &amp; Haptic Telemetry Feedback
               </h3>
-              <div style={{ fontFamily: 'JetBrains Mono', fontSize: '0.64rem', color: '#9898b8' }}>
-                PROCEDURAL WEB AUDIO OSCILLATORS
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: '#64748B', marginTop: 2 }}>
+                Procedural Web Audio Synthesizer
               </div>
             </div>
           </div>
@@ -267,37 +238,38 @@ export default function SettingsPage() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'rgba(8, 8, 18, 0.75)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               padding: '16px 20px',
-              borderRadius: 8,
+              borderRadius: 12,
               gap: 16,
+              flexWrap: 'wrap',
             }}
           >
             <div>
-              <div style={{ fontFamily: 'Clash Display, sans-serif', fontWeight: 600, fontSize: '0.92rem', color: '#f0f0f8' }}>
-                Tactile Audio Feedback Synthesizer
+              <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.92rem', color: '#0F172A' }}>
+                Tactile Audio Feedback
               </div>
-              <div style={{ fontSize: '0.78rem', color: '#9898b8', fontFamily: 'Cabinet Grotesk', marginTop: 3 }}>
-                Generative acoustic feedback for physical relay toggles, 3D cell selection blips, and safety alert tones.
+              <div style={{ fontSize: '0.8rem', color: '#64748B', fontFamily: 'Inter, sans-serif', marginTop: 3 }}>
+                Plays subtle audio cues for physical relay toggles, 3D cell selection blips, and safety alert chimes.
               </div>
             </div>
 
             <button
               onClick={handleToggleSound}
               style={{
-                padding: '8px 16px',
-                fontSize: '0.72rem',
-                fontFamily: 'JetBrains Mono, monospace',
+                padding: '8px 18px',
+                fontSize: '0.78rem',
+                fontFamily: 'Inter, sans-serif',
                 fontWeight: 700,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                background: soundEnabled ? '#e8ff47' : 'rgba(255, 255, 255, 0.04)',
-                color: soundEnabled ? '#04040a' : '#9898b8',
-                border: soundEnabled ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: 6,
+                letterSpacing: '0.04em',
+                background: soundEnabled ? '#7C3AED' : '#FFFFFF',
+                color: soundEnabled ? '#FFFFFF' : '#475569',
+                border: soundEnabled ? 'none' : '1px solid #CBD5E1',
+                borderRadius: 8,
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.18s ease',
+                boxShadow: soundEnabled ? '0 2px 8px rgba(124, 58, 237, 0.25)' : 'none',
               }}
             >
               {soundEnabled ? 'AUDIO ON' : 'MUTED'}
@@ -307,48 +279,46 @@ export default function SettingsPage() {
 
         {/* Backend Connectivity Test */}
         <div
-          className="glass-panel"
           style={{
+            background: '#FFFFFF',
+            borderRadius: 16,
             padding: 24,
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 16,
-            background: 'linear-gradient(180deg, rgba(13, 13, 31, 0.65) 0%, rgba(8, 8, 18, 0.75) 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
-            borderRadius: 12,
+            gap: 18,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               style={{
-                width: 32,
-                height: 32,
-                borderRadius: 6,
+                width: 40,
+                height: 40,
+                borderRadius: 10,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'rgba(16, 185, 129, 0.08)',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
+                background: '#F0FDF4',
+                border: '1px solid #BBF7D0',
               }}
             >
-              <Server size={16} color="#10b981" />
+              <Server size={20} color="#16A34A" />
             </div>
             <div>
               <h3
                 style={{
-                  fontFamily: 'Clash Display, sans-serif',
-                  fontSize: '1.02rem',
-                  color: '#f0f0f8',
-                  letterSpacing: '0.02em',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '1.05rem',
+                  color: '#0F172A',
+                  fontWeight: 700,
                   margin: 0,
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
                 }}
               >
-                FASTAPI BACKEND GATEWAY DIAGNOSTICS
+                FastAPI Backend Gateway Diagnostics
               </h3>
-              <div style={{ fontFamily: 'JetBrains Mono', fontSize: '0.64rem', color: '#9898b8' }}>
-                REST / HEALTH PING TEST
+              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: '#64748B', marginTop: 2 }}>
+                REST / Health Ping Diagnostics
               </div>
             </div>
           </div>
@@ -358,65 +328,68 @@ export default function SettingsPage() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              background: 'rgba(8, 8, 18, 0.75)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               padding: '16px 20px',
-              borderRadius: 8,
+              borderRadius: 12,
               gap: 16,
               flexWrap: 'wrap',
             }}
           >
             <div>
-              <div style={{ fontFamily: 'Clash Display, sans-serif', fontWeight: 600, fontSize: '0.92rem', color: '#f0f0f8' }}>
-                REST & WebSocket Gateway Ping
+              <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.92rem', color: '#0F172A' }}>
+                REST &amp; WebSocket Gateway Ping
               </div>
-              <div style={{ fontSize: '0.76rem', color: '#9898b8', fontFamily: 'JetBrains Mono', marginTop: 3 }}>
-                HOST: <code>http://localhost:8000</code> | WS: <code>ws://localhost:8000/ws</code>
+              <div style={{ fontSize: '0.78rem', color: '#64748B', fontFamily: 'JetBrains Mono, monospace', marginTop: 4 }}>
+                HOST: <code style={{ color: '#2563EB', fontWeight: 600 }}>http://localhost:8000</code> &bull; WS: <code style={{ color: '#7C3AED', fontWeight: 600 }}>ws://localhost:8000/ws</code>
               </div>
             </div>
 
-            <MagneticButton strength={0.2}>
-              <button
-                onClick={handleTestBackend}
-                disabled={testingPing}
-                style={{
-                  padding: '8px 16px',
-                  fontSize: '0.72rem',
-                  fontFamily: 'JetBrains Mono, monospace',
-                  fontWeight: 700,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  background: '#e8ff47',
-                  color: '#04040a',
-                  border: 'none',
-                  borderRadius: 6,
-                  cursor: testingPing ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 0 16px rgba(232, 255, 71, 0.25)',
-                }}
-              >
-                {testingPing ? 'TESTING...' : 'PING GATEWAY'}
-              </button>
-            </MagneticButton>
+            <button
+              onClick={handleTestBackend}
+              disabled={testingPing}
+              style={{
+                padding: '9px 20px',
+                fontSize: '0.82rem',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 700,
+                background: '#2563EB',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: 8,
+                cursor: testingPing ? 'not-allowed' : 'pointer',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <Activity size={16} />
+              {testingPing ? 'Testing...' : 'Ping Gateway'}
+            </button>
           </div>
 
           {backendStatus && (
             <div
               style={{
-                background: backendStatus.success ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.1)',
-                border: `1px solid ${backendStatus.success ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                borderRadius: 8,
+                background: backendStatus.success ? '#F0FDF4' : '#FEF2F2',
+                border: `1px solid ${backendStatus.success ? '#BBF7D0' : '#FECACA'}`,
+                borderRadius: 10,
                 padding: '12px 16px',
-                fontSize: '0.78rem',
-                color: backendStatus.success ? '#6ee7b7' : '#fca5a5',
-                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.84rem',
+                color: backendStatus.success ? '#166534' : '#991B1B',
+                fontFamily: 'Inter, sans-serif',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
               }}
             >
-              &gt; {backendStatus.message}
+              {backendStatus.success ? <CheckCircle2 size={16} color="#16A34A" /> : <AlertCircle size={16} color="#DC2626" />}
+              <span>{backendStatus.message}</span>
             </div>
           )}
         </div>
       </div>
-      </ScrollReveal>
     </div>
   );
 }

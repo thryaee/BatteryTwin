@@ -1,8 +1,7 @@
 /**
  * src/components/common/FeedbackStates.jsx
  * ----------------------------------------
- * Dark Luxury Editorial Loading, Error, Empty, and Confirmation Modal states.
- * Replaces cyberpunk neon glows with restrained architectural surfaces and electric lime accents.
+ * Clean, modern light theme Loading, Error, Empty, and Confirmation Modal states.
  */
 
 import React from 'react';
@@ -13,7 +12,6 @@ import { soundEffects } from '../../utils/soundEffects';
 export function LoadingState({ message = 'Synchronizing with Digital Twin Backend...' }) {
   return (
     <div
-      className="glass-panel"
       style={{
         padding: '60px 24px',
         textAlign: 'center',
@@ -21,35 +19,33 @@ export function LoadingState({ message = 'Synchronizing with Digital Twin Backen
         flexDirection: 'column',
         alignItems: 'center',
         gap: 16,
-        background: 'rgba(8, 8, 18, 0.75)',
-        border: '1px solid rgba(255, 255, 255, 0.07)',
-        borderRadius: 12,
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: 16,
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       }}
     >
       <div
         style={{
-          width: 44,
-          height: 44,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
-          background: 'rgba(232, 255, 71, 0.08)',
+          background: '#EFF6FF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1px solid rgba(232, 255, 71, 0.3)',
-          boxShadow: '0 0 20px rgba(232, 255, 71, 0.15)',
+          border: '1px solid #BFDBFE',
         }}
       >
-        <Zap size={20} color="#e8ff47" />
+        <Zap size={22} color="#2563EB" />
       </div>
 
       <div
         style={{
-          fontFamily: 'Clash Display, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontSize: '1.05rem',
-          letterSpacing: '0.04em',
-          color: '#f0f0f8',
-          textTransform: 'uppercase',
-          fontWeight: 600,
+          color: '#0F172A',
+          fontWeight: 700,
         }}
       >
         {message}
@@ -59,11 +55,10 @@ export function LoadingState({ message = 'Synchronizing with Digital Twin Backen
         style={{
           fontFamily: 'JetBrains Mono, monospace',
           fontSize: '0.74rem',
-          color: '#9898b8',
-          letterSpacing: '0.04em',
+          color: '#64748B',
         }}
       >
-        GATEWAY // ws://localhost:8000/ws
+        GATEWAY &bull; ws://localhost:8000/ws
       </div>
     </div>
   );
@@ -72,7 +67,6 @@ export function LoadingState({ message = 'Synchronizing with Digital Twin Backen
 export function ErrorState({ message = 'An unexpected error occurred.', onRetry }) {
   return (
     <div
-      className="glass-panel"
       style={{
         padding: '48px 24px',
         textAlign: 'center',
@@ -80,44 +74,43 @@ export function ErrorState({ message = 'An unexpected error occurred.', onRetry 
         flexDirection: 'column',
         alignItems: 'center',
         gap: 14,
-        background: 'rgba(8, 8, 18, 0.8)',
-        border: '1px solid rgba(239, 68, 68, 0.25)',
-        borderRadius: 12,
+        background: '#FFFFFF',
+        border: '1px solid #FECACA',
+        borderRadius: 16,
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       }}
     >
       <div
         style={{
-          width: 44,
-          height: 44,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
-          background: 'rgba(239, 68, 68, 0.1)',
+          background: '#FEF2F2',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
+          border: '1px solid #FCA5A5',
         }}
       >
-        <AlertTriangle size={22} color="#ef4444" />
+        <AlertTriangle size={24} color="#DC2626" />
       </div>
 
       <div
         style={{
-          fontFamily: 'Clash Display, sans-serif',
+          fontFamily: 'Inter, sans-serif',
           fontSize: '1.05rem',
-          letterSpacing: '0.04em',
-          color: '#f0f0f8',
-          textTransform: 'uppercase',
-          fontWeight: 600,
+          color: '#991B1B',
+          fontWeight: 700,
         }}
       >
-        SYSTEM TELEMETRY DISRUPTION
+        Telemetry Connection Notice
       </div>
 
       <p
         style={{
-          fontFamily: 'Cabinet Grotesk, sans-serif',
-          fontSize: '0.84rem',
-          color: '#fca5a5',
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '0.88rem',
+          color: '#64748B',
           maxWidth: 460,
           margin: 0,
           lineHeight: 1.5,
@@ -129,23 +122,21 @@ export function ErrorState({ message = 'An unexpected error occurred.', onRetry 
       {onRetry && (
         <button
           onClick={onRetry}
-          className="btn-primary"
           style={{
             marginTop: 8,
-            padding: '8px 18px',
-            fontSize: '0.75rem',
-            fontFamily: 'JetBrains Mono, monospace',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            fontWeight: 700,
-            background: '#e8ff47',
-            color: '#04040a',
+            padding: '9px 20px',
+            fontSize: '0.82rem',
+            fontFamily: 'Inter, sans-serif',
+            fontWeight: 600,
+            background: '#2563EB',
+            color: '#FFFFFF',
             border: 'none',
-            borderRadius: 6,
+            borderRadius: 8,
             cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
           }}
         >
-          RETRY TELEMETRY LINK
+          Retry Connection
         </button>
       )}
     </div>
@@ -155,7 +146,6 @@ export function ErrorState({ message = 'An unexpected error occurred.', onRetry 
 export function EmptyState({ title = 'No Data Available', message = 'No records found for the requested criteria.', icon: Icon = Info }) {
   return (
     <div
-      className="glass-panel"
       style={{
         padding: '48px 24px',
         textAlign: 'center',
@@ -163,29 +153,41 @@ export function EmptyState({ title = 'No Data Available', message = 'No records 
         flexDirection: 'column',
         alignItems: 'center',
         gap: 12,
-        background: 'rgba(8, 8, 18, 0.65)',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
-        borderRadius: 12,
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: 16,
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
       }}
     >
-      <Icon size={28} color="#9898b8" />
       <div
         style={{
-          fontFamily: 'Clash Display, sans-serif',
-          fontSize: '0.98rem',
-          letterSpacing: '0.04em',
-          color: '#f0f0f8',
-          textTransform: 'uppercase',
-          fontWeight: 600,
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          background: '#F8FAFC',
+          border: '1px solid #E2E8F0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon size={24} color="#64748B" />
+      </div>
+      <div
+        style={{
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '1rem',
+          color: '#0F172A',
+          fontWeight: 700,
         }}
       >
         {title}
       </div>
       <p
         style={{
-          fontFamily: 'Cabinet Grotesk, sans-serif',
-          fontSize: '0.82rem',
-          color: '#9898b8',
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '0.86rem',
+          color: '#64748B',
           maxWidth: 420,
           margin: 0,
           lineHeight: 1.5,
@@ -229,9 +231,9 @@ export function ConfirmationModal({
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(4, 4, 10, 0.88)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          background: 'rgba(15, 23, 42, 0.45)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -240,45 +242,43 @@ export function ConfirmationModal({
         }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: 10 }}
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, y: 10 }}
+          exit={{ opacity: 0, scale: 0.95, y: 10 }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           style={{
             maxWidth: 460,
             width: '100%',
             padding: 24,
-            background: 'linear-gradient(180deg, rgba(13, 13, 31, 0.96) 0%, rgba(8, 8, 18, 0.98) 100%)',
-            border: isDanger ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid rgba(232, 255, 71, 0.35)',
-            borderRadius: 12,
-            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.8)',
+            background: '#FFFFFF',
+            border: isDanger ? '1px solid #FECACA' : '1px solid #E2E8F0',
+            borderRadius: 16,
+            boxShadow: '0 20px 45px -10px rgba(0, 0, 0, 0.2)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 6,
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  background: isDanger ? 'rgba(239, 68, 68, 0.12)' : 'rgba(232, 255, 71, 0.12)',
-                  border: isDanger ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(232, 255, 71, 0.3)',
+                  background: isDanger ? '#FEF2F2' : '#EFF6FF',
+                  border: isDanger ? '1px solid #FCA5A5' : '1px solid #BFDBFE',
                 }}
               >
-                <ShieldAlert size={16} color={isDanger ? '#ef4444' : '#e8ff47'} />
+                <ShieldAlert size={18} color={isDanger ? '#DC2626' : '#2563EB'} />
               </div>
               <h3
                 style={{
-                  fontFamily: 'Clash Display, sans-serif',
-                  fontSize: '1.02rem',
-                  color: '#f0f0f8',
-                  letterSpacing: '0.04em',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '1.05rem',
+                  color: '#0F172A',
                   margin: 0,
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
+                  fontWeight: 700,
                 }}
               >
                 {title}
@@ -289,7 +289,7 @@ export function ConfirmationModal({
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#9898b8',
+                color: '#64748B',
                 cursor: 'pointer',
                 padding: 4,
                 display: 'flex',
@@ -297,15 +297,15 @@ export function ConfirmationModal({
                 justifyContent: 'center',
               }}
             >
-              <X size={16} />
+              <X size={18} />
             </button>
           </div>
 
           <p
             style={{
-              fontFamily: 'Cabinet Grotesk, sans-serif',
-              fontSize: '0.86rem',
-              color: '#9898b8',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.88rem',
+              color: '#475569',
               lineHeight: 1.6,
               marginBottom: 24,
             }}
@@ -317,37 +317,33 @@ export function ConfirmationModal({
             <button
               onClick={handleCancel}
               style={{
-                padding: '8px 16px',
-                fontSize: '0.76rem',
-                fontFamily: 'JetBrains Mono, monospace',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
+                padding: '9px 18px',
+                fontSize: '0.82rem',
+                fontFamily: 'Inter, sans-serif',
                 fontWeight: 600,
-                background: 'rgba(255, 255, 255, 0.04)',
-                color: '#9898b8',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: 6,
+                background: '#F1F5F9',
+                color: '#475569',
+                border: '1px solid #CBD5E1',
+                borderRadius: 8,
                 cursor: 'pointer',
               }}
             >
-              CANCEL
+              Cancel
             </button>
 
             <button
               onClick={handleConfirm}
               style={{
-                padding: '8px 18px',
-                fontSize: '0.76rem',
-                fontFamily: 'JetBrains Mono, monospace',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                fontWeight: 700,
-                background: isDanger ? '#ef4444' : '#e8ff47',
-                color: isDanger ? '#ffffff' : '#04040a',
+                padding: '9px 20px',
+                fontSize: '0.82rem',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 600,
+                background: isDanger ? '#DC2626' : '#2563EB',
+                color: '#FFFFFF',
                 border: 'none',
-                borderRadius: 6,
+                borderRadius: 8,
                 cursor: 'pointer',
-                boxShadow: isDanger ? '0 0 16px rgba(239, 68, 68, 0.3)' : '0 0 16px rgba(232, 255, 71, 0.25)',
+                boxShadow: isDanger ? '0 4px 12px rgba(220, 38, 38, 0.25)' : '0 4px 12px rgba(37, 99, 235, 0.25)',
               }}
             >
               {confirmLabel}

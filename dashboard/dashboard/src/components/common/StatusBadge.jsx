@@ -1,50 +1,62 @@
 /**
  * src/components/common/StatusBadge.jsx
  * -------------------------------------
- * Nexus Studio Editorial Status Pill Badge.
- * Replaces heavy cyberpunk neon glows with minimalist capsules,
- * clean typography, and restrained live pulsing indicator dots.
+ * Modern Commercial Pill Badge for BatteryTwin.
+ * High-legibility status indicators with soft tint backgrounds and crisp borders.
  */
 
 import React from 'react';
 
 const STATUS_CONFIG = {
-  HEALTHY:        { dot: '#10b981', text: '#f0f0f8', label: 'HEALTHY' },
-  OK:             { dot: '#10b981', text: '#f0f0f8', label: 'OPTIMAL' },
-  NORMAL:         { dot: '#10b981', text: '#f0f0f8', label: 'NORMAL' },
-  DEGRADED:       { dot: '#f59e0b', text: '#f0f0f8', label: 'DEGRADED' },
-  WARNING:        { dot: '#f59e0b', text: '#f0f0f8', label: 'WARNING' },
-  HIGH:           { dot: '#f59e0b', text: '#f0f0f8', label: 'ELEVATED' },
-  POOR:           { dot: '#ef4444', text: '#f0f0f8', label: 'POOR' },
-  CRITICAL:       { dot: '#ef4444', text: '#ff9d7a', label: 'CRITICAL' },
-  URGENT:         { dot: '#ef4444', text: '#ff9d7a', label: 'URGENT' },
+  HEALTHY:        { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'HEALTHY' },
+  OK:             { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'OPTIMAL' },
+  NORMAL:         { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'NORMAL' },
+  BALANCED:       { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'BALANCED' },
 
-  CHARGING:       { dot: '#e8ff47', text: '#e8ff47', label: 'CHARGING' },
-  DISCHARGING:    { dot: '#c4c4d8', text: '#f0f0f8', label: 'DISCHARGING' },
-  IDLE:           { dot: '#9898b8', text: '#9898b8', label: 'IDLE' },
+  DEGRADED:       { dot: '#D97706', bg: '#FFFBEB', border: '#FDE68A', text: '#B45309', label: 'DEGRADED' },
+  WARNING:        { dot: '#D97706', bg: '#FFFBEB', border: '#FDE68A', text: '#B45309', label: 'WARNING' },
+  HIGH:           { dot: '#D97706', bg: '#FFFBEB', border: '#FDE68A', text: '#B45309', label: 'ELEVATED' },
+  ELEVATED:       { dot: '#D97706', bg: '#FFFBEB', border: '#FDE68A', text: '#B45309', label: 'ELEVATED' },
 
-  SIMULATOR:      { dot: '#f59e0b', text: '#f0f0f8', label: 'SIMULATOR' },
-  ESP32:          { dot: '#10b981', text: '#f0f0f8', label: 'ESP32 MQTT' },
-  ESP32_HARDWARE: { dot: '#10b981', text: '#f0f0f8', label: 'ESP32 HARDWARE' },
+  POOR:           { dot: '#DC2626', bg: '#FEF2F2', border: '#FECACA', text: '#B91C1C', label: 'POOR' },
+  CRITICAL:       { dot: '#DC2626', bg: '#FEF2F2', border: '#FECACA', text: '#B91C1C', label: 'CRITICAL' },
+  URGENT:         { dot: '#DC2626', bg: '#FEF2F2', border: '#FECACA', text: '#B91C1C', label: 'URGENT' },
 
-  ON:             { dot: '#10b981', text: '#f0f0f8', label: 'ENGAGED' },
-  OFF:            { dot: '#ef4444', text: '#f0f0f8', label: 'DISENGAGED' },
+  CHARGING:       { dot: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', text: '#1D4ED8', label: 'CHARGING' },
+  DISCHARGING:    { dot: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', text: '#6D28D9', label: 'DISCHARGING' },
+  IDLE:           { dot: '#64748B', bg: '#F8FAFC', border: '#E2E8F0', text: '#475569', label: 'IDLE' },
 
-  INFO:           { dot: '#9898b8', text: '#f0f0f8', label: 'INFO' },
-  UNKNOWN:        { dot: '#9898b8', text: '#9898b8', label: 'UNKNOWN' },
+  CONNECTED:      { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'CONNECTED' },
+  DISCONNECTED:   { dot: '#DC2626', bg: '#FEF2F2', border: '#FECACA', text: '#B91C1C', label: 'DISCONNECTED' },
+
+  SIMULATOR:      { dot: '#D97706', bg: '#FFFBEB', border: '#FDE68A', text: '#B45309', label: 'SIMULATOR DATA' },
+  HARDWARE:       { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'ESP32 HARDWARE' },
+  ESP32:          { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'ESP32 SENSORS' },
+  ESP32_HARDWARE: { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'ESP32 HARDWARE' },
+
+  ACTIVE:         { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'ACTIVE' },
+  ARBITRATING:    { dot: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', text: '#1D4ED8', label: 'ARBITRATING' },
+
+  ON:             { dot: '#16A34A', bg: '#F0FDF4', border: '#BBF7D0', text: '#15803D', label: 'ENGAGED' },
+  OFF:            { dot: '#DC2626', bg: '#FEF2F2', border: '#FECACA', text: '#B91C1C', label: 'DISENGAGED' },
+
+  INFO:           { dot: '#0284C7', bg: '#F0F9FF', border: '#BAE6FD', text: '#0369A1', label: 'INFO' },
+  UNKNOWN:        { dot: '#64748B', bg: '#F8FAFC', border: '#E2E8F0', text: '#475569', label: 'UNKNOWN' },
 };
 
 export default function StatusBadge({ label, size = 'sm' }) {
   const key = (label || 'UNKNOWN').toUpperCase().replace(/\s+/g, '_');
   const cfg = STATUS_CONFIG[key] || {
-    dot: '#9898b8',
-    text: '#f0f0f8',
+    dot: '#64748B',
+    bg: '#F8FAFC',
+    border: '#E2E8F0',
+    text: '#475569',
     label: (label || 'UNKNOWN').toUpperCase(),
   };
 
   const isLg = size === 'lg' || size === 'md';
   const padding = isLg ? '5px 12px' : '3px 9px';
-  const fontSize = isLg ? '0.72rem' : '0.64rem';
+  const fontSize = isLg ? '0.74rem' : '0.67rem';
 
   return (
     <span
@@ -55,25 +67,26 @@ export default function StatusBadge({ label, size = 'sm' }) {
         padding,
         fontSize,
         fontWeight: 600,
-        fontFamily: 'JetBrains Mono',
-        letterSpacing: '0.06em',
+        fontFamily: 'Inter, sans-serif',
+        letterSpacing: '0.02em',
         borderRadius: 9999,
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        backgroundColor: 'rgba(13, 13, 31, 0.85)',
+        border: `1px solid ${cfg.border}`,
+        backgroundColor: cfg.bg,
         color: cfg.text,
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
         lineHeight: 1.2,
         userSelect: 'none',
+        boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
       }}
     >
       <span
         style={{
-          width: 5,
-          height: 5,
+          width: 6,
+          height: 6,
           borderRadius: '50%',
           backgroundColor: cfg.dot,
-          boxShadow: `0 0 6px ${cfg.dot}`,
+          boxShadow: `0 0 0 2px ${cfg.bg}`,
           flexShrink: 0,
         }}
       />

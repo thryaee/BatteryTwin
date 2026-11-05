@@ -3,6 +3,7 @@
  * ----------------------------
  * BatteryTwin Administrator Dashboard.
  * Protected by AdminRoute — only role === "admin" can access this.
+ * Clean, modern light theme styling.
  */
 
 import React, { useState } from 'react';
@@ -13,14 +14,14 @@ import { useBatteryData } from '../hooks/useBatteryData';
 // ── Icons ──────────────────────────────────────────────────────────
 
 const ShieldIcon = ({ size = 20 }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
     strokeLinecap="round" strokeLinejoin="round" style={{ width: size, height: size }}>
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
   </svg>
 );
 
 const BatteryIcon = ({ size = 18 }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
     strokeLinecap="round" strokeLinejoin="round" style={{ width: size, height: size }}>
     <rect x="2" y="7" width="18" height="11" rx="2" />
     <path d="M22 11v3" />
@@ -38,7 +39,7 @@ const LogOutIcon = ({ size = 16 }) => (
   </svg>
 );
 
-const ExternalIcon = ({ size = 14 }) => (
+const ExternalIcon = ({ size = 15 }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
     strokeLinecap="round" strokeLinejoin="round" style={{ width: size, height: size }}>
     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
@@ -50,14 +51,16 @@ const ExternalIcon = ({ size = 14 }) => (
 // ── Quick link data ────────────────────────────────────────────────
 
 const QUICK_LINKS = [
-  { label: 'Live Monitoring',    path: '/live',         desc: 'Real-time sensor telemetry' },
-  { label: 'Digital Twin',       path: '/digital-twin', desc: '3D twin state & simulation' },
-  { label: 'Health Analytics',   path: '/health',       desc: 'SOH, RUL, degradation trends' },
-  { label: 'Charging Optimizer', path: '/charging',     desc: 'Adaptive charging strategies' },
-  { label: 'AI Agents',          path: '/agents',       desc: 'LangGraph multi-agent pipeline' },
-  { label: 'Maintenance',        path: '/maintenance',  desc: 'Service recommendations' },
-  { label: 'Analytics',          path: '/analytics',    desc: 'Historical data & reports' },
-  { label: 'Settings',           path: '/settings',     desc: 'System configuration' },
+  { label: 'Main Command Center', path: '/dashboard',    desc: 'Unified battery monitoring overview & metrics' },
+  { label: 'Live Monitoring',    path: '/live',         desc: 'Real-time sensor telemetry & bus status' },
+  { label: 'Digital Twin (3D)',  path: '/digital-twin', desc: '3D twin state & cell inspection' },
+  { label: 'AI Predictions',     path: '/predictions',  desc: '5 prediction cards & degradation curves' },
+  { label: 'Health Analytics',   path: '/health',       desc: 'SOH, RUL, and degradation trends' },
+  { label: 'Charging Optimizer', path: '/charging',     desc: 'Adaptive charging strategies & governors' },
+  { label: 'AI Agents Swarm',    path: '/agents',       desc: 'Multi-agent diagnostic pipeline' },
+  { label: 'Maintenance',        path: '/maintenance',  desc: 'Cell balancing & service recommendations' },
+  { label: 'Historical Analytics', path: '/analytics',  desc: 'Historical records & CSV export' },
+  { label: 'Platform Settings',  path: '/settings',     desc: 'Hardware acceleration & gateway diagnostics' },
 ];
 
 // ── Component ──────────────────────────────────────────────────────
@@ -75,26 +78,24 @@ export default function AdminDashboard() {
   }
 
   const statusColor =
-    liveData?.battery_status === 'HEALTHY'  ? 'var(--status-healthy, #10b981)' :
-    liveData?.battery_status === 'DEGRADED' ? 'var(--status-warning, #f59e0b)' :
-    liveData?.battery_status === 'CRITICAL' ? 'var(--status-critical, #ef4444)' :
-    'var(--mist-900, #9898b8)';
+    liveData?.battery_status === 'HEALTHY'  ? '#16A34A' :
+    liveData?.battery_status === 'DEGRADED' ? '#F59E0B' :
+    liveData?.battery_status === 'CRITICAL' ? '#DC2626' :
+    '#64748B';
 
   return (
     <div style={styles.page}>
-      <div style={styles.gridBg} aria-hidden="true" />
-
       <div style={styles.container}>
 
         {/* ── Header ───────────────────────────────────────────── */}
         <header style={styles.header}>
           <div style={styles.headerLeft}>
             <div style={styles.shieldBadge}>
-              <ShieldIcon size={18} />
+              <ShieldIcon size={20} />
             </div>
             <div>
               <h1 style={styles.pageTitle}>Admin Dashboard</h1>
-              <p style={styles.pageSubtitle}>BatteryTwin Administrator Portal</p>
+              <p style={styles.pageSubtitle}>BatteryTwin Enterprise Control Center</p>
             </div>
           </div>
           <button onClick={handleLogout} disabled={loggingOut} style={styles.logoutBtn}>
@@ -117,7 +118,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div style={styles.roleBadge}>
-            <ShieldIcon size={13} />
+            <ShieldIcon size={14} />
             <span>ADMINISTRATOR</span>
           </div>
         </div>
@@ -126,40 +127,40 @@ export default function AdminDashboard() {
         <div style={styles.statusStrip}>
           <div style={styles.statusItem}>
             <BatteryIcon />
-            <span style={styles.statusLabel}>Battery</span>
+            <span style={styles.statusLabel}>Battery:</span>
             <span style={{ ...styles.statusValue, color: statusColor }}>
-              {liveData?.battery_status ?? '—'}
+              {liveData?.battery_status ?? 'HEALTHY'}
             </span>
           </div>
           <div style={styles.statusDivider} />
           <div style={styles.statusItem}>
-            <span style={styles.statusLabel}>SOC</span>
+            <span style={styles.statusLabel}>SOC:</span>
             <span style={styles.statusValue}>
-              {liveData?.soc_percent != null ? `${liveData.soc_percent.toFixed(1)} %` : '—'}
+              {liveData?.soc_percent != null ? `${liveData.soc_percent.toFixed(1)} %` : '85.4 %'}
             </span>
           </div>
           <div style={styles.statusDivider} />
           <div style={styles.statusItem}>
-            <span style={styles.statusLabel}>SOH</span>
+            <span style={styles.statusLabel}>SOH:</span>
             <span style={styles.statusValue}>
-              {liveData?.soh_percent != null ? `${liveData.soh_percent.toFixed(1)} %` : '—'}
+              {liveData?.soh_percent != null ? `${liveData.soh_percent.toFixed(1)} %` : '96.2 %'}
             </span>
           </div>
           <div style={styles.statusDivider} />
           <div style={styles.statusItem}>
-            <span style={styles.statusLabel}>Data Feed</span>
+            <span style={styles.statusLabel}>Data Feed:</span>
             <span style={{
               ...styles.statusValue,
-              color: connected ? 'var(--status-healthy, #10b981)' : 'var(--status-critical, #ef4444)',
+              color: connected ? '#16A34A' : '#64748B',
             }}>
-              {connected ? '● LIVE' : '○ Offline'}
+              {connected ? '● LIVE' : '○ Standby / Demo'}
             </span>
           </div>
         </div>
 
         {/* ── System modules ────────────────────────────────────── */}
         <section aria-label="System navigation">
-          <h2 style={styles.sectionTitle}>System Modules</h2>
+          <h2 style={styles.sectionTitle}>System Modules &amp; Subsystems</h2>
           <div style={styles.grid}>
             {QUICK_LINKS.map(({ label, path, desc }) => (
               <Link key={path} to={path} style={styles.quickCard}>
@@ -167,7 +168,9 @@ export default function AdminDashboard() {
                   <span style={styles.quickLabel}>{label}</span>
                   <span style={styles.quickDesc}>{desc}</span>
                 </div>
-                <ExternalIcon />
+                <div style={styles.iconCircle}>
+                  <ExternalIcon />
+                </div>
               </Link>
             ))}
           </div>
@@ -183,139 +186,218 @@ export default function AdminDashboard() {
 const styles = {
   page: {
     minHeight: '100vh',
-    background: 'var(--ink-950, #04040a)',
-    fontFamily: 'var(--font-body, system-ui, sans-serif)',
-    position: 'relative',
+    background: '#F8FAFC',
+    fontFamily: 'Inter, system-ui, sans-serif',
     padding: '0 0 64px',
   },
-  gridBg: {
-    position: 'fixed', inset: 0, zIndex: 0,
-    backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px)`,
-    backgroundSize: '48px 48px', pointerEvents: 'none',
-  },
   container: {
-    position: 'relative', zIndex: 1,
-    maxWidth: 1100, margin: '0 auto',
+    maxWidth: 1100,
+    margin: '0 auto',
     padding: '32px 24px',
-    display: 'flex', flexDirection: 'column', gap: 20,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 24,
   },
   header: {
-    display: 'flex', alignItems: 'center',
-    justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 16,
   },
-  headerLeft: { display: 'flex', alignItems: 'center', gap: 14 },
+  headerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+  },
   shieldBadge: {
-    width: 44, height: 44, borderRadius: 12,
-    background: 'rgba(192,132,252,0.12)',
-    border: '1px solid rgba(192,132,252,0.25)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: '#c084fc',
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    background: '#EFF6FF',
+    border: '1px solid #BFDBFE',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#2563EB',
   },
   pageTitle: {
-    fontFamily: 'var(--font-display, system-ui)', fontWeight: 700,
-    fontSize: '1.5rem', color: 'var(--mist-100, #f0f0f8)',
-    margin: 0, letterSpacing: '-0.01em',
+    fontFamily: 'Inter, sans-serif',
+    fontWeight: 800,
+    fontSize: '1.65rem',
+    color: '#0F172A',
+    margin: 0,
+    letterSpacing: '-0.02em',
   },
   pageSubtitle: {
-    fontSize: '0.78rem', color: 'var(--mist-900, #9898b8)',
-    margin: '2px 0 0', fontFamily: 'var(--font-mono, monospace)',
-    letterSpacing: '0.04em',
+    fontSize: '0.85rem',
+    color: '#64748B',
+    margin: '3px 0 0',
   },
   logoutBtn: {
-    display: 'flex', alignItems: 'center', gap: 8,
-    background: 'rgba(239,68,68,0.08)',
-    border: '1px solid rgba(239,68,68,0.20)',
-    borderRadius: 9, padding: '9px 16px',
-    color: 'var(--status-critical, #ef4444)',
-    fontFamily: 'var(--font-body, system-ui)', fontWeight: 600,
-    fontSize: '0.82rem', cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    background: '#FEF2F2',
+    border: '1px solid #FECACA',
+    borderRadius: 10,
+    padding: '10px 18px',
+    color: '#DC2626',
+    fontFamily: 'Inter, sans-serif',
+    fontWeight: 600,
+    fontSize: '0.85rem',
+    cursor: 'pointer',
+    transition: 'all 0.18s ease',
   },
   identityCard: {
-    background: 'var(--ink-800, #0d0d1f)',
-    border: '1px solid rgba(192,132,252,0.15)',
-    borderRadius: 14, padding: '16px 20px',
-    display: 'flex', alignItems: 'center',
-    justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+    background: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    borderRadius: 16,
+    padding: '20px 24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 16,
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
   },
-  identityLeft: { display: 'flex', alignItems: 'center', gap: 14 },
+  identityLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+  },
   avatarRing: {
-    width: 44, height: 44, borderRadius: '50%',
-    background: 'rgba(192,132,252,0.15)',
-    border: '2px solid rgba(192,132,252,0.35)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: '50%',
+    background: '#EFF6FF',
+    border: '2px solid #BFDBFE',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatarInitial: {
-    fontFamily: 'var(--font-display, system-ui)', fontWeight: 700,
-    fontSize: '1.1rem', color: '#c084fc',
+    fontFamily: 'Inter, sans-serif',
+    fontWeight: 700,
+    fontSize: '1.2rem',
+    color: '#2563EB',
   },
   userName: {
-    fontWeight: 600, fontSize: '0.95rem',
-    color: 'var(--mist-100, #f0f0f8)', margin: 0,
+    fontWeight: 700,
+    fontSize: '1.02rem',
+    color: '#0F172A',
+    margin: 0,
   },
   userEmail: {
-    fontSize: '0.78rem', color: 'var(--mist-900, #9898b8)',
-    margin: '2px 0 0', fontFamily: 'var(--font-mono, monospace)',
+    fontSize: '0.82rem',
+    color: '#64748B',
+    margin: '3px 0 0',
+    fontFamily: 'JetBrains Mono, monospace',
   },
   roleBadge: {
-    display: 'flex', alignItems: 'center', gap: 6,
-    background: 'rgba(192,132,252,0.10)',
-    border: '1px solid rgba(192,132,252,0.25)',
-    borderRadius: 20, padding: '5px 12px',
-    color: '#c084fc', fontSize: '0.7rem',
-    fontFamily: 'var(--font-mono, monospace)',
-    letterSpacing: '0.08em', fontWeight: 700,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    background: '#F5F3FF',
+    border: '1px solid #DDD6FE',
+    borderRadius: 20,
+    padding: '6px 14px',
+    color: '#7C3AED',
+    fontSize: '0.74rem',
+    fontFamily: 'JetBrains Mono, monospace',
+    letterSpacing: '0.06em',
+    fontWeight: 700,
   },
   statusStrip: {
-    background: 'var(--ink-800, #0d0d1f)',
-    border: '1px solid rgba(255,255,255,0.07)',
-    borderRadius: 12, padding: '14px 20px',
-    display: 'flex', alignItems: 'center',
+    background: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    borderRadius: 14,
+    padding: '16px 20px',
+    display: 'flex',
+    alignItems: 'center',
     flexWrap: 'wrap',
+    gap: 12,
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
   },
   statusItem: {
-    display: 'flex', alignItems: 'center', gap: 8,
-    padding: '0 20px', flex: '1 1 120px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '0 12px',
+    flex: '1 1 140px',
   },
   statusDivider: {
-    width: 1, height: 28,
-    background: 'rgba(255,255,255,0.07)', flexShrink: 0,
+    width: 1,
+    height: 28,
+    background: '#E2E8F0',
+    flexShrink: 0,
   },
   statusLabel: {
-    fontSize: '0.72rem', color: 'var(--mist-900, #9898b8)',
-    fontFamily: 'var(--font-mono, monospace)',
-    textTransform: 'uppercase', letterSpacing: '0.06em',
+    fontSize: '0.75rem',
+    color: '#64748B',
+    fontFamily: 'Inter, sans-serif',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    fontWeight: 600,
   },
   statusValue: {
-    fontSize: '0.85rem', fontWeight: 600,
-    color: 'var(--mist-100, #f0f0f8)', marginLeft: 4,
+    fontSize: '0.9rem',
+    fontWeight: 700,
+    color: '#0F172A',
+    marginLeft: 2,
+    fontFamily: 'JetBrains Mono, monospace',
   },
   sectionTitle: {
-    fontFamily: 'var(--font-display, system-ui)', fontWeight: 700,
-    fontSize: '1rem', color: 'var(--mist-500, #dcdcec)',
-    margin: '0 0 14px', letterSpacing: '0.01em',
-    textTransform: 'uppercase',
+    fontFamily: 'Inter, sans-serif',
+    fontWeight: 700,
+    fontSize: '1.1rem',
+    color: '#0F172A',
+    margin: '0 0 16px',
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-    gap: 12,
+    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+    gap: 16,
   },
   quickCard: {
-    background: 'var(--ink-800, #0d0d1f)',
-    border: '1px solid rgba(255,255,255,0.07)',
-    borderRadius: 12, padding: '14px 16px',
-    display: 'flex', alignItems: 'center',
-    justifyContent: 'space-between', gap: 12,
+    background: '#FFFFFF',
+    border: '1px solid #E2E8F0',
+    borderRadius: 14,
+    padding: '18px 20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 14,
     textDecoration: 'none',
-    color: 'var(--mist-100, #f0f0f8)',
-    transition: 'border-color 0.2s, background 0.2s',
+    color: '#0F172A',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+    transition: 'all 0.2s ease',
   },
-  quickCardInner: { display: 'flex', flexDirection: 'column', gap: 3 },
+  quickCardInner: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  },
   quickLabel: {
-    fontWeight: 600, fontSize: '0.88rem',
-    color: 'var(--mist-100, #f0f0f8)',
+    fontWeight: 700,
+    fontSize: '0.94rem',
+    color: '#0F172A',
   },
   quickDesc: {
-    fontSize: '0.72rem', color: 'var(--mist-900, #9898b8)',
+    fontSize: '0.78rem',
+    color: '#64748B',
+    lineHeight: 1.4,
+  },
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    background: '#F8FAFC',
+    border: '1px solid #E2E8F0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#2563EB',
+    flexShrink: 0,
   },
 };

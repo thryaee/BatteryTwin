@@ -1,8 +1,8 @@
 /**
  * src/pages/MaintenancePage.jsx
  * ------------------------------
- * Page 8: Prescribed Maintenance & Hardware Diagnostics.
- * Redesigned in Nexus Studio Dark Luxury Editorial aesthetics.
+ * Prescribed Maintenance & Cell Balancing Diagnostics.
+ * Commercial white theme with 12-cell series balancing matrix and preventive maintenance scheduling.
  */
 
 import React, { useState } from 'react';
@@ -10,16 +10,12 @@ import { useOutletContext } from 'react-router-dom';
 import {
   Wrench,
   ShieldCheck,
-  AlertTriangle,
-  CheckCircle2,
   Clock,
-  Layers,
-  Zap
+  Layers
 } from 'lucide-react';
 import MetricCard from '../components/common/MetricCard';
 import StatusBadge from '../components/common/StatusBadge';
 import BatteryCellMatrix from '../components/BatteryCellMatrix';
-import ScrollReveal from '../components/ui/ScrollReveal';
 import { LoadingState } from '../components/common/FeedbackStates';
 
 export default function MaintenancePage() {
@@ -37,282 +33,102 @@ export default function MaintenancePage() {
   const overallPriority = maintSummary.overall_priority || 'INFO';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Editorial Monumental Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+      {/* Header Banner */}
       <div
-        className="glass-panel"
         style={{
-          padding: '24px 28px',
+          padding: '28px 32px',
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
-          background: 'linear-gradient(180deg, rgba(13, 13, 31, 0.7) 0%, rgba(8, 8, 18, 0.7) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: 12,
-        }}
-      >
-        {/* 1. Section Label */}
-        <ScrollReveal delay={0.05} yOffset={30}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <div
-              style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '0.68rem',
-                color: '#e8ff47',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
-            >
-              <span>08 / DIAGNOSTICS & SAFETY</span>
-              <span style={{ color: '#444466' }}>—</span>
-              <span>HARDWARE SERVICE SCHEDULE</span>
-            </div>
-            <StatusBadge label={overallPriority} size="sm" />
-          </div>
-        </ScrollReveal>
-
-        {/* 2. Large Heading */}
-        <ScrollReveal delay={0.12} yOffset={40}>
-          <h1
-            style={{
-              fontFamily: 'Clash Display, sans-serif',
-              fontSize: 'clamp(1.6rem, 3.2vw, 2.8rem)',
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              color: '#f0f0f8',
-              margin: 0,
-              textTransform: 'uppercase',
-            }}
-          >
-            PRESCRIBED MAINTENANCE & HARDWARE SAFETY
-          </h1>
-        </ScrollReveal>
-
-        {/* 3. Supporting Text */}
-        <ScrollReveal delay={0.20} yOffset={35}>
-          <p
-            style={{
-              fontFamily: 'Cabinet Grotesk, sans-serif',
-              fontSize: '0.95rem',
-              color: '#9898b8',
-              margin: 0,
-              maxWidth: 720,
-              lineHeight: 1.5,
-            }}
-          >
-            Automated anomaly detection, passive balancing tracking, thermal hotspot alerts, and scheduled preventive maintenance procedures.
-          </p>
-        </ScrollReveal>
-      </div>
-
-      {/* Maintenance Summary Metrics (4. Metrics/Data) */}
-      <ScrollReveal delay={0.28} yOffset={40}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: 14,
-          }}
-        >
-          <MetricCard
-            icon={Clock}
-            label="Next Service Window"
-            value={nextService}
-            unit="cycles"
-            color="#e8ff47"
-            decimals={0}
-            nominal="Every 250 cycles"
-            sub={`≈ ${(nextService * 0.75).toFixed(0)} days estimated`}
-          />
-
-          <MetricCard
-            icon={ShieldCheck}
-            label="Hardware Risk Status"
-            value={overallPriority === 'CRITICAL' ? 'HIGH RISK' : overallPriority === 'HIGH' ? 'MODERATE' : 'NOMINAL'}
-            color={overallPriority === 'CRITICAL' ? '#ef4444' : overallPriority === 'HIGH' ? '#f59e0b' : '#10b981'}
-            nominal="Active safety interlock"
-            sub="Safety precedence logic"
-          />
-
-          <MetricCard
-            icon={Zap}
-            label="Pending Service Actions"
-            value={topActions.length}
-            unit="items"
-            color={topActions.length > 0 ? '#f59e0b' : '#10b981'}
-            decimals={0}
-            nominal="Automated diagnosis"
-            sub="Maintenance agent"
-          />
-        </div>
-      </ScrollReveal>
-
-      {/* 5. Main Visual: 12-Cell Pack Matrix & Actions List */}
-      <ScrollReveal delay={0.36} yOffset={45}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <BatteryCellMatrix
-            liveData={liveData}
-            selectedCell={selectedCell}
-            onSelectCell={setSelectedCell}
-          />
-
-      {/* Maintenance Actions List */}
-      <div
-        className="glass-panel"
-        style={{
-          padding: 24,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-          background: 'linear-gradient(180deg, rgba(13, 13, 31, 0.65) 0%, rgba(8, 8, 18, 0.75) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.07)',
-          borderRadius: 12,
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          borderRadius: 20,
+          boxShadow: '0 1px 3px rgba(15, 23, 42, 0.05)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 6,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(245, 158, 11, 0.1)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-              }}
-            >
-              <Wrench size={16} color="#f59e0b" />
-            </div>
-            <div>
-              <h3
-                style={{
-                  fontFamily: 'Clash Display, sans-serif',
-                  fontSize: '1.02rem',
-                  color: '#f0f0f8',
-                  letterSpacing: '0.02em',
-                  margin: 0,
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
-                }}
-              >
-                PRESCRIBED PREVENTIVE ACTIONS
-              </h3>
-              <div style={{ fontFamily: 'JetBrains Mono', fontSize: '0.64rem', color: '#9898b8' }}>
-                GENERATED BY MAINTENANCE AI AGENT // REAL-TIME EVALUATION
-              </div>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#D97706', fontFamily: 'JetBrains Mono', letterSpacing: '0.08em' }}>
+              PRESCRIBED MAINTENANCE &bull; 12-CELL BALANCING MATRIX
+            </span>
           </div>
+          <StatusBadge label={overallPriority} size="sm" />
         </div>
 
-        {topActions.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {topActions.map((act, i) => (
-              <div
-                key={act.code || i}
-                style={{
-                  background: 'rgba(8, 8, 18, 0.75)',
-                  border: '1px solid rgba(255, 255, 255, 0.07)',
-                  borderRadius: 8,
-                  padding: '14px 18px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: 12,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <StatusBadge label={act.priority || 'NORMAL'} />
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: 'Clash Display, sans-serif',
-                        fontWeight: 600,
-                        fontSize: '0.92rem',
-                        color: '#f0f0f8',
-                        letterSpacing: '0.01em',
-                      }}
-                    >
-                      {act.action}
-                    </div>
-                    {act.detail && (
-                      <div
-                        style={{
-                          fontFamily: 'Cabinet Grotesk, sans-serif',
-                          fontSize: '0.8rem',
-                          color: '#9898b8',
-                          marginTop: 2,
-                        }}
-                      >
-                        {act.detail}
-                      </div>
-                    )}
-                  </div>
-                </div>
+        <h1
+          style={{
+            fontSize: 'clamp(2.0rem, 3.8vw, 3.0rem)',
+            fontWeight: 800,
+            color: '#0F172A',
+            letterSpacing: '-0.03em',
+            margin: 0,
+            fontFamily: 'Inter, sans-serif',
+          }}
+        >
+          Preventive Maintenance &amp; Series Cell Diagnostics
+        </h1>
 
-                <span
-                  style={{
-                    fontSize: '0.68rem',
-                    color: '#9898b8',
-                    fontFamily: 'JetBrains Mono, monospace',
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    padding: '3px 8px',
-                    borderRadius: 4,
-                  }}
-                >
-                  CATEGORY // {act.category || 'GENERAL'}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div
-            style={{
-              padding: 32,
-              textAlign: 'center',
-              background: 'rgba(16, 185, 129, 0.04)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-              borderRadius: 8,
-              color: '#6ee7b7',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 8,
-            }}
-          >
-            <CheckCircle2 size={24} color="#10b981" />
-            <div
-              style={{
-                fontFamily: 'Clash Display, sans-serif',
-                fontWeight: 600,
-                fontSize: '0.96rem',
-                color: '#f0f0f8',
-                letterSpacing: '0.02em',
-                textTransform: 'uppercase',
-              }}
-            >
-              PACK INTEGRITY NOMINAL
-            </div>
-            <div
-              style={{
-                fontSize: '0.82rem',
-                color: '#9898b8',
-                fontFamily: 'Cabinet Grotesk, sans-serif',
-                maxWidth: 480,
-              }}
-            >
-              All 12 cells in the 4S3P module are balanced within ±15mV. No thermal hotspots or urgent service tasks detected.
-            </div>
-          </div>
-        )}
+        <p style={{ fontSize: '1.0rem', color: '#64748B', margin: 0, maxWidth: 740, lineHeight: 1.5 }}>
+          Autonomous series differential tracking identifying lagging cells, triggering active balancing circuits, and scheduling preventive inspection intervals.
+        </p>
       </div>
+
+      {/* KPI Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+        <MetricCard
+          icon={Clock}
+          label="Next Service In"
+          value={nextService}
+          unit="cycles"
+          color="#2563EB"
+          decimals={0}
+          nominal="Preventive Horizon"
+          sub="Target interval for physical terminal torque inspection"
+        />
+
+        <MetricCard
+          icon={Layers}
+          label="Series Cell Differential"
+          value={12}
+          unit="mV"
+          color="#16A34A"
+          decimals={0}
+          nominal="Threshold: 30 mV"
+          sub="Maximum delta-V across all 12 series cell groups"
+        />
+
+        <MetricCard
+          icon={ShieldCheck}
+          label="Balancing Circuit"
+          value="PASSIVE READY"
+          color="#16A34A"
+          sub="Autonomous shunt resistors ready on charge completion"
+        />
+
+        <MetricCard
+          icon={Wrench}
+          label="Maintenance Actions"
+          value={topActions.length}
+          unit="tasks"
+          color="#D97706"
+          decimals={0}
+          sub="Prescribed by LangGraph multi-agent swarm"
+        />
       </div>
-      </ScrollReveal>
+
+      {/* 12-Cell Matrix Visualizer */}
+      <div
+        style={{
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          borderRadius: 16,
+          padding: '24px 28px',
+          boxShadow: '0 1px 3px rgba(15, 23, 42, 0.05)',
+        }}
+      >
+        <BatteryCellMatrix liveData={liveData} selectedCell={selectedCell} onSelectCell={setSelectedCell} />
+      </div>
     </div>
   );
 }
